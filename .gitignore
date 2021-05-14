@@ -1,0 +1,29 @@
+__pycache__
+staticfiles
+local_settings.py
+db.sqlite3
+media/
+*.py[co]
+
+
+.DS_Store
+node_modules
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
