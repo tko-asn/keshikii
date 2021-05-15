@@ -14,7 +14,7 @@
               <h1 class="has-text-centered">Edit Form</h1>
             </div>
             <PostImageForm
-              @changeImage="setImageFile($event)"
+              @changeImage="setImageFile"
               :defaultSrc="post.picture_url"
               :defaultFileName="post.picture_filename"
             ></PostImageForm>
@@ -50,7 +50,10 @@
               :postPrefecture="post.prefecture"
               :postLocation="post.location"
             ></PostLocationForm>
-            <PostStatusForm @changeRadio="setStatus($event)" :origin="post.status"></PostStatusForm>
+            <PostStatusForm
+              @changeRadio="setStatus($event)"
+              :origin="post.status"
+            ></PostStatusForm>
             <div class="field is-grouped mt-5 mb-2">
               <button
                 class="button button-border is-primary is-fullwidth"
@@ -109,6 +112,7 @@ export default {
       prefectureDataInEditForm: "",
       locationDataInEditForm: "",
       newPicture: null,
+      newFileName: "",
     };
   },
   computed: {
@@ -132,8 +136,11 @@ export default {
     });
   },
   methods: {
-    setImageFile(newFileData) {
-      this.newPicture = newFileData;
+    setImageFile(...newFileData) {
+      // 画像ファイル(Blob)を保存
+      this.newPicture = newFileData[0];
+      // 画像ファイル名を保存
+      this.newFileName = newFileData[1];
     },
     setCategorys(newCategorys) {
       this.post.category = newCategorys;
@@ -146,6 +153,7 @@ export default {
     },
     editPost() {
       const params = new FormData();
+      // 元の投稿データから画像関連の属性を削除
       delete this.post.picture_url;
       delete this.post.picture_filename;
       delete this.post.picture;
@@ -158,8 +166,9 @@ export default {
           params.append(key, value);
         }
       });
+      // 画像に変更があった場合
       if (this.newPicture) {
-        params.append("picture", this.newPicture);
+        params.append("picture", this.newPicture, this.newFileName);
       }
       params.append("zip_code", this.zipCodeInEditForm);
       params.append("prefecture", this.prefectureDataInEditForm);
