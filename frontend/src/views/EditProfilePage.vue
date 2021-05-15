@@ -67,6 +67,7 @@
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
 import GlobalMessage from "@/components/GlobalMessage";
+import Compressor from "compressorjs";
 
 export default {
   components: {
@@ -113,21 +114,41 @@ export default {
         const fileReader = new FileReader();
         fileReader.readAsDataURL(file);
         fileReader.onload = () => resolve(fileReader.result);
-        fileReader.onerror = (error) => reject(error); // 開発環境
+        fileReader.onerror = (error) => reject(error);
       });
     },
     onIconChange(event) {
       const images = event.target.files || event.dataTransfer.files;
-      this.getFileData(images[0])
-        .then((fileData) => {
-          this.newIconSrc = fileData;
-        })
-        .catch(() => {
-          const errorMessage = "画像のアップロードに失敗しました。";
-          this.$store.dispatch("message/setErrorMessage", {
-            message: errorMessage,
+      const data = images[0];
+      const _this = this;
+      // 投稿画像を圧縮
+      new Compressor(data, {
+        // 圧縮した画像の解像度
+        quality: 0.6,
+        // 圧縮成功時の処理
+        success(result) {
+          _this.getFileData(result)
+            .then((fileData) => {
+              _this.newIconSrc = fileData;
+            })
+            .catch(() => {
+              "画像のアップロードに失敗しました。"
+              _this.$store.dispatch("message/setErrorMessage", {
+                message: "画像のアップロードに失敗しました。",
+              });
+            });
+        },
+        maxWidth: 200,
+        maxHeight: 200,
+        mimeType: "image/jpeg",
+        // 圧縮失敗時の処理
+        error() {
+          _this.$store.dispatch("message/setErrorMessage", {
+            message:
+              "画像の読み込みに失敗しました。もう一度やり直してください。",
           });
-        });
+        },
+      });
     },
     clickEditProfile() {
       const params = new FormData();
@@ -138,7 +159,7 @@ export default {
         }
       });
       if (this.newIcon) {
-        params.append("icon", this.newIcon);
+        params.append("icon", this.newIcon, this.iconFileNameInData);
       }
       api.patch("/auth/users/me/", params).then(() => {
         this.$router.replace({ name: "mypage" });

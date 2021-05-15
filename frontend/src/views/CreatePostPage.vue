@@ -14,7 +14,7 @@
               <h1 class="has-text-centered">Post Form</h1>
             </div>
             <PostImageForm
-              @changeImage="setImageFile($event)"
+              @changeImage="setImageFile"
               :defaultSrc="''"
               :defaultFileName="''"
             ></PostImageForm>
@@ -46,7 +46,10 @@
               @send-prefecture="savePrefecture($event)"
               @send-location="saveLocation($event)"
             ></PostLocationForm>
-            <PostStatusForm @changeRadio="setStatus($event)" :origin="''"></PostStatusForm>
+            <PostStatusForm
+              @changeRadio="setStatus($event)"
+              :origin="''"
+            ></PostStatusForm>
             <div class="field is-grouped mt-5 mb-2">
               <button class="button button-border is-primary is-fullwidth">
                 投稿する
@@ -81,6 +84,7 @@ export default {
     return {
       newPost: {
         picture: null,
+        fileName: "",
         title: "",
         text: "",
         status: "public",
@@ -92,8 +96,11 @@ export default {
     };
   },
   methods: {
-    setImageFile(newFileData) {
-      this.newPost.picture = newFileData;
+    setImageFile(...newFileData) {
+      // 画像ファイル(Blob)を保存
+      this.newPost.picture = newFileData[0];
+      // 画像ファイル名を保存
+      this.newPost.fileName = newFileData[1];
     },
     setCategorys(categorysList) {
       this.selectedCategory = categorysList;
@@ -104,7 +111,13 @@ export default {
     createPost() {
       const params = new FormData();
       Object.entries(this.newPost).forEach(([key, value]) => {
-        params.append(key, value);
+        if (key === "picture") {
+          // this.newPost.pictureはBlob
+          // 第三引数にファイル名を追加
+          params.append(key, this.newPost.picture, this.newPost.fileName);
+        } else {
+          params.append(key, value);
+        }
       });
       this.selectedCategory.forEach((value) => {
         // manytomanyfieldなのでひとつずつ加える。
