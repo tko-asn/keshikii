@@ -54,7 +54,7 @@ export default {
       // 投稿画像を圧縮
       new Compressor(data, {
         // 圧縮した画像の解像度
-        quality: 0.8,
+        quality: 0.6,
         // 圧縮成功時の処理
         success(result) {
           _this
@@ -71,8 +71,8 @@ export default {
               });
             });
         },
-        maxWidth: 600,
-        maxHeight: 600,
+        maxWidth: 400,
+        maxHeight: 400,
         mimeType: "image/jpeg",
         // 圧縮失敗時の処理
         error() {
