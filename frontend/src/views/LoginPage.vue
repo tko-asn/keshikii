@@ -35,10 +35,20 @@
                 </div>
               </div>
             </div>
-            <button id="tablet-button" class="button is-primary is-fullwidth">
+            <button
+              id="tablet-button"
+              class="button is-primary is-fullwidth"
+              :disabled="disabled"
+            >
               ログイン
             </button>
-            <button class="button is-primary" id="pc-button">ログイン</button>
+            <button
+              class="button is-primary"
+              id="pc-button"
+              :disabled="disabled"
+            >
+              ログイン
+            </button>
           </div>
         </form>
       </div>
@@ -61,24 +71,29 @@ export default {
         username: "",
         password: "",
       },
+      disabled: false,
     };
   },
   props: ["before"],
   methods: {
     login() {
+      this.disabled = true;
       this.$store
         .dispatch("auth/login", {
           username: this.form.username,
           password: this.form.password,
         })
         .then(() => {
-          let nextPage = '';
+          let nextPage = "";
           if (this.$route.query.next) {
             nextPage = this.$route.query.next;
           } else {
-            nextPage = { name: 'home', params: { before: 'login' } };
+            nextPage = { name: "home", params: { before: "login" } };
           }
           this.$router.replace(nextPage);
+        })
+        .catch(() => {
+          this.disabled = false;
         });
     },
   },

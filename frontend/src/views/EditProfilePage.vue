@@ -53,7 +53,15 @@
                 ></textarea>
               </div>
             </div>
-            <button id="profile-button" class="button is-primary is-fullwidth">
+            <ValidationMessage
+              :messages="messages"
+              class="mb-2"
+            ></ValidationMessage>
+            <button
+              id="profile-button"
+              class="button is-primary is-fullwidth"
+              :disabled="disabled"
+            >
               プロフィールを編集する
             </button>
           </div>
@@ -67,12 +75,14 @@
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
 import GlobalMessage from "@/components/GlobalMessage";
+import ValidationMessage from "@/components/ValidationMessage";
 import Compressor from "compressorjs";
 
 export default {
   components: {
     GlobalMenu,
     GlobalMessage,
+    ValidationMessage,
   },
   data() {
     return {
@@ -80,6 +90,8 @@ export default {
       newIconSrc: "",
       newIcon: null,
       iconFileNameInData: "",
+      disabled: false,
+      messages: [],
     };
   },
   mounted() {
@@ -127,12 +139,13 @@ export default {
         quality: 0.6,
         // 圧縮成功時の処理
         success(result) {
-          _this.getFileData(result)
+          _this
+            .getFileData(result)
             .then((fileData) => {
               _this.newIconSrc = fileData;
             })
             .catch(() => {
-              "画像のアップロードに失敗しました。"
+              "画像のアップロードに失敗しました。";
               _this.$store.dispatch("message/setErrorMessage", {
                 message: "画像のアップロードに失敗しました。",
               });
@@ -151,6 +164,13 @@ export default {
       });
     },
     clickEditProfile() {
+      this.disabled = true;
+      // ユーザー名が空の場合
+      if (!this.user.username) {
+        this.messages.push("ユーザー名は必須項目です。");
+        this.disabled = false;
+        return;
+      }
       const params = new FormData();
       const editFields = ["username", "self_introduction"]; // 入力項目追加するごとに個々にも追加。
       Object.entries(this.user).forEach(([key, value]) => {
@@ -161,9 +181,14 @@ export default {
       if (this.newIcon) {
         params.append("icon", this.newIcon, this.iconFileNameInData);
       }
-      api.patch("/auth/users/me/", params).then(() => {
-        this.$router.replace({ name: "mypage" });
-      });
+      api
+        .patch("/auth/users/me/", params)
+        .then(() => {
+          this.$router.replace({ name: "mypage" });
+        })
+        .catch(() => {
+          this.disabled = false;
+        });
     },
   },
 };

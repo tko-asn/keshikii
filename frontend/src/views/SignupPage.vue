@@ -43,10 +43,21 @@
                 />
               </div>
             </div>
-            <button class="button is-primary is-fullwidth" id="tablet-button">
+            <ValidationMessage :messages="messages"></ValidationMessage>
+            <button
+              class="button is-primary is-fullwidth"
+              id="tablet-button"
+              :disabled="disabled"
+            >
               新規登録
             </button>
-            <button class="button is-primary" id="pc-button">新規登録</button>
+            <button
+              class="button is-primary"
+              id="pc-button"
+              :disabled="disabled"
+            >
+              新規登録
+            </button>
           </div>
         </form>
       </div>
@@ -57,11 +68,13 @@
 <script>
 import GlobalMenu from "@/components/GlobalMenu";
 import GlobalMessage from "@/components/GlobalMessage";
+import ValidationMessage from "@/components/ValidationMessage";
 
 export default {
   components: {
     GlobalMenu,
     GlobalMessage,
+    ValidationMessage,
   },
   data() {
     return {
@@ -70,10 +83,19 @@ export default {
         password: "",
         confirmationPassword: "",
       },
+      disabled: false,
+      messages: [],
     };
   },
   methods: {
     registerUser() {
+      this.messages = [];
+      this.disabled = true;
+      if (this.newUser.password !== this.newUser.confirmationPassword) {
+        this.disabled = false;
+        this.messages.push("確認用パスワードが違います。");
+        return;
+      }
       this.$store
         .dispatch("auth/register", {
           username: this.newUser.username,
@@ -92,6 +114,9 @@ export default {
               });
               this.$router.replace("/");
             });
+        })
+        .catch(() => {
+          this.disabled = false;
         });
     },
   },
