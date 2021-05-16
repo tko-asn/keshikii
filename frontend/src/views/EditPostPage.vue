@@ -54,10 +54,12 @@
               @changeRadio="setStatus($event)"
               :origin="post.status"
             ></PostStatusForm>
+            <ValidationMessage :messages="messages"></ValidationMessage>
             <div class="field is-grouped mt-5 mb-2">
               <button
                 class="button button-border is-primary is-fullwidth"
                 @click="editPost"
+                :disabled="disabled"
               >
                 投稿を編集する
               </button>
@@ -80,7 +82,7 @@
             <div class="field is-grouped mt-5 mb-2">
               <button
                 class="button is-danger is-fullwidth button-border"
-                :disabled="!isInput"
+                :disabled="!isInput || disabled"
                 @click="deletePost"
               >
                 削除
@@ -101,6 +103,7 @@ import PostLocationForm from "@/components/PostLocationForm";
 import PostStatusForm from "@/components/PostStatusForm";
 import PostCategoryForm from "@/components/PostCategoryForm";
 import PostImageForm from "@/components/PostImageForm";
+import ValidationMessage from "@/components/ValidationMessage";
 
 export default {
   data() {
@@ -113,6 +116,8 @@ export default {
       locationDataInEditForm: "",
       newPicture: null,
       newFileName: "",
+      disabled: false,
+      messages: [],
     };
   },
   computed: {
@@ -127,6 +132,7 @@ export default {
     PostStatusForm,
     PostCategoryForm,
     PostImageForm,
+    ValidationMessage,
   },
   props: ["id"],
   mounted() {
@@ -152,6 +158,15 @@ export default {
       this.post.status = newStatus;
     },
     editPost() {
+      this.disabled = true;
+      // メッセージの初期化
+      this.messages = [];
+      // 入力必須項目が空の場合のメッセージ
+      if (!this.post.title) {
+        this.messages.push("タイトルは必須項目です。");
+        this.disabled = false;
+        return;
+      }
       const params = new FormData();
       // 元の投稿データから画像関連の属性を削除
       delete this.post.picture_url;
@@ -173,19 +188,30 @@ export default {
       params.append("zip_code", this.zipCodeInEditForm);
       params.append("prefecture", this.prefectureDataInEditForm);
       params.append("location", this.locationDataInEditForm);
-      api.patch("/users_post/" + this.id + "/", params).then(() => {
-        if (this.post.status === "private") {
-          // 公開設定を非公開に編集した場合はhomeへ遷移
-          this.$router.replace({ name: "home" });
-        } else {
-          this.$router.replace({ name: "viewPost", params: { id: this.id } });
-        }
-      });
+      api
+        .patch("/users_post/" + this.id + "/", params)
+        .then(() => {
+          if (this.post.status === "private") {
+            // 公開設定を非公開に編集した場合はhomeへ遷移
+            this.$router.replace({ name: "home" });
+          } else {
+            this.$router.replace({ name: "viewPost", params: { id: this.id } });
+          }
+        })
+        .catch(() => {
+          this.disabled = false;
+        });
     },
     deletePost() {
-      api.delete("/posts/" + this.id + "/").then(() => {
-        this.$router.replace("/");
-      });
+      this.disabled = true;
+      api
+        .delete("/posts/" + this.id + "/")
+        .then(() => {
+          this.$router.replace("/");
+        })
+        .catch(() => {
+          this.disabled = false;
+        });
     },
     saveZipInEdit(zip) {
       // zipが記述済みで半角・全角数字以外の文字が含まれていない場合。
