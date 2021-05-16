@@ -14,7 +14,7 @@
               <h1 class="has-text-centered">Post Form</h1>
             </div>
             <PostImageForm
-              @changeImage="setImageFile($event)"
+              @changeImage="setImageFile"
               :defaultSrc="''"
               :defaultFileName="''"
             ></PostImageForm>
@@ -46,9 +46,16 @@
               @send-prefecture="savePrefecture($event)"
               @send-location="saveLocation($event)"
             ></PostLocationForm>
-            <PostStatusForm @changeRadio="setStatus($event)" :origin="''"></PostStatusForm>
+            <PostStatusForm
+              @changeRadio="setStatus($event)"
+              :origin="''"
+            ></PostStatusForm>
+            <ValidationMessage :messages="messages"></ValidationMessage>
             <div class="field is-grouped mt-5 mb-2">
-              <button class="button button-border is-primary is-fullwidth">
+              <button
+                :disabled="disabled"
+                class="button button-border is-primary is-fullwidth"
+              >
                 投稿する
               </button>
             </div>
@@ -67,6 +74,7 @@ import PostLocationForm from "@/components/PostLocationForm";
 import PostStatusForm from "@/components/PostStatusForm";
 import PostCategoryForm from "@/components/PostCategoryForm";
 import PostImageForm from "@/components/PostImageForm";
+import ValidationMessage from "@/components/ValidationMessage";
 
 export default {
   components: {
@@ -76,11 +84,13 @@ export default {
     PostStatusForm,
     PostCategoryForm,
     PostImageForm,
+    ValidationMessage,
   },
   data() {
     return {
       newPost: {
         picture: null,
+        fileName: "",
         title: "",
         text: "",
         status: "public",
@@ -89,11 +99,16 @@ export default {
       zipCode: "",
       prefecture: "",
       location: "",
+      disabled: false,
+      messages: [],
     };
   },
   methods: {
-    setImageFile(newFileData) {
-      this.newPost.picture = newFileData;
+    setImageFile(...newFileData) {
+      // 画像ファイル(Blob)を保存
+      this.newPost.picture = newFileData[0];
+      // 画像ファイル名を保存
+      this.newPost.fileName = newFileData[1];
     },
     setCategorys(categorysList) {
       this.selectedCategory = categorysList;
@@ -102,9 +117,30 @@ export default {
       this.newPost.status = newStatus;
     },
     createPost() {
+      this.disabled = true;
+      // メッセージの初期化
+      this.messages = [];
+      // 入力必須項目が空の場合のメッセージ
+      if (!this.newPost.picture || !this.newPost.title) {
+        if (!this.newPost.picture) {
+          this.messages.push("画像は必須項目です。");
+          this.disabled = false;
+        }
+        if (!this.newPost.title) {
+          this.messages.push("タイトルは必須項目です。");
+          this.disabled = false;
+        }
+        return;
+      }
       const params = new FormData();
       Object.entries(this.newPost).forEach(([key, value]) => {
-        params.append(key, value);
+        if (key === "picture") {
+          // this.newPost.pictureはBlob
+          // 第三引数にファイル名を追加
+          params.append(key, this.newPost.picture, this.newPost.fileName);
+        } else {
+          params.append(key, value);
+        }
       });
       this.selectedCategory.forEach((value) => {
         // manytomanyfieldなのでひとつずつ加える。
@@ -113,9 +149,14 @@ export default {
       params.append("zip_code", this.zipCode);
       params.append("prefecture", this.prefecture);
       params.append("location", this.location);
-      api.post("/users_post/", params).then(() => {
-        this.$router.push({ name: "home", params: { before: "create" } });
-      });
+      api
+        .post("/users_post/", params)
+        .then(() => {
+          this.$router.push({ name: "home", params: { before: "create" } });
+        })
+        .catch(() => {
+          this.disabled = false;
+        });
     },
     saveZip(zip) {
       if (!zip.match(/[^0-9０-９]/g)) {

@@ -3,7 +3,7 @@ import store from './store';
 
 const api = axios.create({
 	baseURL: process.env.VUE_APP_API_BASE_URL,
-	timeout: 10000,
+	timeout: 30000,
 	headers: {
 		'Content-Type': 'application/json',
 		'X-Requested-With': 'XMLHttpRequest'
@@ -62,7 +62,7 @@ api.interceptors.response.use(
 
 const publicApi = axios.create({ // リクエスト時にトークンの検証を行わない。
 	baseURL: process.env.VUE_APP_API_BASE_URL,
-	timeout: 10000,
+	timeout: 30000,
 	headers: {
 		'Content-Type': 'application/json',
 		'X-Requested-With': 'XMLHttpRequest'
