@@ -54,7 +54,7 @@ export default {
       // 投稿画像を圧縮
       new Compressor(data, {
         // 圧縮した画像の解像度
-        quality: 0.6,
+        quality: 0.5,
         // 圧縮成功時の処理
         success(result) {
           _this
