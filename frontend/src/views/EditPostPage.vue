@@ -7,6 +7,7 @@
         <form
           id="edit-form"
           @submit.prevent
+          @keydown.enter.prevent
           class="box column is-5-desktop is-6-tablet is-8-mobile"
         >
           <div id="form-container">
