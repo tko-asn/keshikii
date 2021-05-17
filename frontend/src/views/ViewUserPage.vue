@@ -119,7 +119,9 @@ export default {
             this.favoriteUsersCount = followingObjects.data.length;
           });
         publicApi
-          .get("/following/?followers=True&user=" + this.user.id)
+          .get("/following/", {
+            params: { followers: "True", user: this.user.id },
+          })
           .then((followingObjects) => {
             // userのフォロワーを取得
             followingObjects.data.forEach((following) => {

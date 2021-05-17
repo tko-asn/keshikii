@@ -197,6 +197,8 @@ export default {
         // viewsetのパーミッション: IsAuthenticatedOrReadOnly
         axios = publicApi;
       }
+      // djangoのFilterクラスのカテゴリーの指定方法の都合上
+      // クエリパラメータは文字列で指定する。
       let true_url = url;
       if (this.searchKeyword) {
         const keywordQuery =

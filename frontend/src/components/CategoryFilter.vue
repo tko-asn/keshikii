@@ -220,12 +220,16 @@ export default {
     },
     clickSearchButton() {
       let query = "";
+      // djangoのFilterクラスのカテゴリーの指定方法の都合上
+      // カテゴリーのクエリパラメータは文字列で指定する。
       const firstCategory = this.selectedCategoryList[0];
-      for (const category of this.selectedCategoryList) {
-        if (category === firstCategory) {
-          query += "?categorys=" + category;
-        } else {
-          query += "&categorys=" + category;
+      if (this.selectedCategoryList.length) {
+        for (const category of this.selectedCategoryList) {
+          if (category === firstCategory) {
+            query += "?categorys=" + category;
+          } else {
+            query += "&categorys=" + category;
+          }
         }
       }
       if (this.selectedPrefecture) {
