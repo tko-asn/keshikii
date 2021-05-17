@@ -52,7 +52,6 @@
             <Pagination
               @paginate="setPostsInHome($event)"
               class="mt-6"
-              :id="''"
             ></Pagination>
           </div>
           <CategoryFilter
@@ -96,7 +95,7 @@ export default {
     };
   },
   mounted() {
-    publicApi.get("/posts/").then(response => {
+    publicApi.get("/posts/").then((response) => {
       if (response.data.results.length) {
         this.posts = response.data.results;
         this.$store.dispatch("pagination/setPagination", response.data);

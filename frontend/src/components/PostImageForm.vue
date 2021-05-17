@@ -28,7 +28,16 @@
 import Compressor from "compressorjs";
 
 export default {
-  props: ["defaultSrc", "defaultFileName"],
+  props: {
+    defaultSrc: {
+      type: String,
+      default: "",
+    },
+    defaultFileName: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       previewSrc: "", // imgタグのsrc属性に与える

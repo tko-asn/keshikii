@@ -142,7 +142,12 @@ import { publicApi } from "@/api";
 import { mapGetters } from "vuex";
 
 export default {
-  props: ["id"],
+  props: {
+    id: {
+      type: String,
+      default: "",
+    },
+  },
   mounted() {
     document.getElementById(1).classList.add("is-current");
   },
