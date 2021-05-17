@@ -120,7 +120,7 @@ export default {
     },
     clickForSearch() {
       publicApi
-        .get("/posts/?keyword=" + this.searchKeyword)
+        .get("/posts/", { params: { keyword: this.searchKeyword } })
         .then((response) => {
           this.posts = response.data.results;
           if (this.posts.length) {
