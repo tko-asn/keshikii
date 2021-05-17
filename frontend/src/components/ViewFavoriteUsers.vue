@@ -23,6 +23,16 @@
 
 <script>
 export default {
+  props: {
+    username: {
+      type: String,
+      default: "",
+    },
+    favoriteUsers: {
+      type: Array,
+      default: () => [],
+    },
+  },
   computed: {
     favoriteUsersList() {
       if (this.$route.name === "mypage") {
@@ -32,7 +42,6 @@ export default {
       }
     },
   },
-  props: ["username", "favoriteUsers"],
   methods: {
     goToUsersPage(username) {
       const loginUsername = this.$store.getters["auth/username"];

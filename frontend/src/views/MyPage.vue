@@ -7,7 +7,6 @@
       <template v-slot:favoriteUsers>
         <ViewFavoriteUsers
           :username="user.username"
-          :favoriteUsers="[]"
           @removeModalInViewFavoriteUsers="removeModalWindowInMyPage"
         ></ViewFavoriteUsers>
       </template>
@@ -24,11 +23,7 @@
     <div id="mypage-container" class="container">
       <UserProfileArea :user="user"></UserProfileArea>
     </div>
-    <TabMenu
-      :routesList="routeName"
-      :tabNameList="tabName"
-      :option="false"
-    ></TabMenu>
+    <TabMenu :routesList="routeName" :tabNameList="tabName"></TabMenu>
     <div class="container">
       <keep-alive>
         <MyProfile

@@ -54,7 +54,6 @@
         </section>
         <TabMenu
           :tabNameList="tabNameInViewUserPage"
-          :routesList="[]"
           :option="optionNumber"
           @returnTabIndex="switchElement($event)"
           @resetOption="resetOptionNumber"

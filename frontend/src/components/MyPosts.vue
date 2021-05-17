@@ -1,11 +1,7 @@
 <template>
   <div v-if="myPosts.length">
     <PostsList :posts="myPosts"></PostsList>
-    <Pagination
-      @paginate="setMyPosts($event)"
-      :id="''"
-      class="mt-5"
-    ></Pagination>
+    <Pagination @paginate="setMyPosts($event)" class="mt-5"></Pagination>
   </div>
   <div v-else>
     {{ noPosts }}

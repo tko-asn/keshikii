@@ -17,7 +17,19 @@
 
 <script>
 export default {
-  props: ["routesList", "tabNameList", "option"],
+  props: {
+    routesList: {
+      type: Array,
+      default: () => [],
+    },
+    tabNameList: {
+      type: Array,
+      default: () => [],
+    },
+    option: {
+      default: false,
+    },
+  },
   data() {
     return {
       active: 0,

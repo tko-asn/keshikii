@@ -13,11 +13,7 @@
             <div class="content mt-6">
               <h1 class="has-text-centered">Post Form</h1>
             </div>
-            <PostImageForm
-              @changeImage="setImageFile"
-              :defaultSrc="''"
-              :defaultFileName="''"
-            ></PostImageForm>
+            <PostImageForm @changeImage="setImageFile"></PostImageForm>
             <div class="field mt-5">
               <div class="control pt-3">
                 <input
@@ -39,17 +35,13 @@
             </div>
             <PostCategoryForm
               @changeSelectedCategorys="setCategorys($event)"
-              :defaultCategorys="[]"
             ></PostCategoryForm>
             <PostLocationForm
               @send-zip="saveZip($event)"
               @send-prefecture="savePrefecture($event)"
               @send-location="saveLocation($event)"
             ></PostLocationForm>
-            <PostStatusForm
-              @changeRadio="setStatus($event)"
-              :origin="''"
-            ></PostStatusForm>
+            <PostStatusForm @changeRadio="setStatus($event)"></PostStatusForm>
             <ValidationMessage :messages="messages"></ValidationMessage>
             <div class="field is-grouped mt-5 mb-2">
               <button

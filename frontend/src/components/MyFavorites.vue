@@ -1,11 +1,7 @@
 <template>
   <div v-if="favoritePostsList.length">
     <PostsList :posts="favoritePostsList"></PostsList>
-    <Pagination
-      @paginate="setMyFavorites($event)"
-      :id="''"
-      class="mt-5"
-    ></Pagination>
+    <Pagination @paginate="setMyFavorites($event)" class="mt-5"></Pagination>
   </div>
   <div v-else>
     {{ noFavorites }}
