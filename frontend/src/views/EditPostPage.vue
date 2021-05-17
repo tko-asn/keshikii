@@ -205,7 +205,7 @@ export default {
     deletePost() {
       this.disabled = true;
       api
-        .delete("/posts/" + this.id + "/")
+        .delete("/users_post/" + this.id + "/")
         .then(() => {
           this.$router.replace("/");
         })
