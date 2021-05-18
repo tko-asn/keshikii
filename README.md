@@ -30,6 +30,7 @@
 - Vue.js 2.6.12
 - Django 3.2.2
 - Bulma 0.9.2
+- MySQL 5.7.32（開発環境）
 - Heroku PostgreSQL 13.2<br><br>
 
 
