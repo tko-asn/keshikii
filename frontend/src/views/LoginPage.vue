@@ -3,6 +3,15 @@
     <GlobalMenu></GlobalMenu>
     <GlobalMessage></GlobalMessage>
     <div id="login-container" class="container mt-6">
+      <div id="guest-user">
+        <h2>ゲストとしてログイン</h2>
+        <div class="mb-3">
+          <span class="help">以下のアカウントでゲストとして</span>
+          <span class="help">ログインできます。</span>
+        </div>
+        <p>ユーザー名：test</p>
+        <p>パスワード：test-pass</p>
+      </div>
       <div class="columns is-centered">
         <form
           id="login-form"
@@ -113,6 +122,23 @@ export default {
 </script>
 
 <style scoped>
+#guest-user {
+  margin: 20px auto 0;
+  padding: 15px;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+  background-color:lightgreen ;
+  width: 40%;
+  border-radius: 20px;
+  text-align: center;
+  border-radius: 15px;
+}
+span {
+  display: inline-block;
+}
+#guest-user h2 {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
 #login-form {
   margin: 80px auto 0;
   min-height: 400px;
@@ -142,6 +168,9 @@ export default {
   padding-top: 60px;
 }
 @media screen and (max-width: 768px) {
+  #guest-user {
+    width: 80%;
+  }
   #tablet-button {
     display: block;
     margin-top: 50px;
