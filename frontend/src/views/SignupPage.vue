@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="signup-container" class="container mt-6">
       <div class="columns is-centered">
         <form
@@ -67,14 +67,14 @@
 
 <script>
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import ValidationMessage from "@/components/ValidationMessage";
+import Message from "@/components/Message";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
     ValidationMessage,
+    Message,
   },
   data() {
     return {
@@ -109,10 +109,10 @@ export default {
               password: this.newUser.password,
             })
             .then(() => {
-              this.$store.dispatch("message/setInfoMessage", {
-                message: "ユーザー登録が完了しました。",
+              this.$router.replace({
+                name: "home",
+                params: { before: "signup" },
               });
-              this.$router.replace("/");
             });
         })
         .catch(() => {

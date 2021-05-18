@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="edit-container" class="container mt-6 mb-6">
       <div class="columns is-centered">
         <form
@@ -99,12 +99,12 @@
 <script>
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import PostLocationForm from "@/components/PostLocationForm";
 import PostStatusForm from "@/components/PostStatusForm";
 import PostCategoryForm from "@/components/PostCategoryForm";
 import PostImageForm from "@/components/PostImageForm";
 import ValidationMessage from "@/components/ValidationMessage";
+import Message from "@/components/Message";
 
 export default {
   data() {
@@ -128,19 +128,26 @@ export default {
   },
   components: {
     GlobalMenu,
-    GlobalMessage,
     PostLocationForm,
     PostStatusForm,
     PostCategoryForm,
     PostImageForm,
     ValidationMessage,
+    Message,
   },
   props: ["id"],
   mounted() {
-    api.get("/users_post/" + this.id + "/").then((response) => {
-      this.post = response.data;
-      this.defaultCategorysList = response.data.category;
-    });
+    api
+      .get("/users_post/" + this.id + "/")
+      .then((response) => {
+        this.post = response.data;
+        this.defaultCategorysList = response.data.category;
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          this.$router.push("/");
+        }
+      });
   },
   methods: {
     setImageFile(...newFileData) {
@@ -196,7 +203,10 @@ export default {
             // 公開設定を非公開に編集した場合はhomeへ遷移
             this.$router.replace({ name: "home" });
           } else {
-            this.$router.replace({ name: "viewPost", params: { id: this.id } });
+            this.$router.replace({
+              name: "viewPost",
+              params: { id: this.id, before: "editPost" },
+            });
           }
         })
         .catch(() => {
@@ -208,7 +218,10 @@ export default {
       api
         .delete("/users_post/" + this.id + "/")
         .then(() => {
-          this.$router.replace("/");
+          this.$router.replace({
+            name: "home",
+            params: { before: "deletePost" },
+          });
         })
         .catch(() => {
           this.disabled = false;

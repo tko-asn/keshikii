@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="login-container" class="container mt-6">
       <div class="columns is-centered">
         <form
@@ -58,12 +58,12 @@
 
 <script>
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
+import Message from "@/components/Message";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
+    Message,
   },
   data() {
     return {
@@ -96,18 +96,6 @@ export default {
           this.disabled = false;
         });
     },
-  },
-  beforeRouteEnter(to, from, next) {
-    if (to.params.before === "viewPost") {
-      next((vm) => {
-        vm.$store.dispatch("message/setAddition", {
-          messageType: "error",
-          process: "clickAddFavorites",
-        });
-      });
-    } else {
-      next();
-    }
   },
 };
 </script>

@@ -119,10 +119,6 @@ export default {
         this.$router.replace({ name: "home", params: { before: "logout" } });
       } else {
         this.isOpen = false;
-        this.$store.dispatch("message/setAddition", {
-          messageType: "info",
-          process: "afterLogoutInHome",
-        });
       }
     },
     toggleDropdown() {

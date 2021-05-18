@@ -19,7 +19,7 @@
       </template>
     </ModalWindow>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message :info="messages.informations"></Message>
     <div id="mypage-container" class="container">
       <UserProfileArea :user="user"></UserProfileArea>
     </div>
@@ -44,13 +44,13 @@
 <script>
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import MyProfile from "@/components/MyProfile";
 import ModalWindow from "@/components/ModalWindow";
 import ViewFavoriteUsers from "@/components/ViewFavoriteUsers";
 import ViewFollowers from "@/components/ViewFollowers";
 import TabMenu from "@/components/TabMenu";
 import UserProfileArea from "@/components/UserProfileArea";
+import Message from "@/components/Message";
 
 export default {
   data() {
@@ -64,17 +64,20 @@ export default {
         hideWindow: true,
         slotName: "",
       },
+      messages: {
+        informations: [],
+      },
     };
   },
   components: {
     GlobalMenu,
-    GlobalMessage,
     MyProfile,
     ModalWindow,
     ViewFavoriteUsers,
     ViewFollowers,
     TabMenu,
     UserProfileArea,
+    Message,
   },
   methods: {
     showFollowersInMyPage(myFollowers) {
@@ -106,6 +109,18 @@ export default {
     isMyPageRoute() {
       return this.$route.name === "mypage";
     },
+  },
+  // メッセージの表示が必要な場合は
+  // dataのmessagesに値を保存して
+  // Messageコンポーネントに渡す
+  beforeRouteEnter(to, from, next) {
+    if (to.params.before === "editProfile") {
+      next((vm) => {
+        vm.messages.informations.push("プロフィールを編集しました。");
+      });
+    } else {
+      next();
+    }
   },
 };
 </script>
