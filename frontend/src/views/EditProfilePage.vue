@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="edit-profile-container" class="container mt-6">
       <div class="columns is-centered is-vcentered">
         <form
@@ -74,15 +74,15 @@
 <script>
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import ValidationMessage from "@/components/ValidationMessage";
+import Message from "@/components/Message";
 import Compressor from "compressorjs";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
     ValidationMessage,
+    Message,
   },
   data() {
     return {
@@ -143,29 +143,20 @@ export default {
             .getFileData(result)
             .then((fileData) => {
               _this.newIconSrc = fileData;
-            })
-            .catch(() => {
-              "画像のアップロードに失敗しました。";
-              _this.$store.dispatch("message/setErrorMessage", {
-                message: "画像のアップロードに失敗しました。",
-              });
             });
         },
         maxWidth: 200,
         maxHeight: 200,
         mimeType: "image/jpeg",
         // 圧縮失敗時の処理
-        error() {
-          _this.$store.dispatch("message/setErrorMessage", {
-            message:
-              "画像の読み込みに失敗しました。もう一度やり直してください。",
-          });
-        },
+        // error() {
+        // },
       });
     },
     clickEditProfile() {
       this.disabled = true;
       // ユーザー名が空の場合
+      this.messages = [];
       if (!this.user.username) {
         this.messages.push("ユーザー名は必須項目です。");
         this.disabled = false;
@@ -184,7 +175,10 @@ export default {
       api
         .patch("/auth/users/me/", params)
         .then(() => {
-          this.$router.replace({ name: "mypage" });
+          this.$router.replace({
+            name: "mypage",
+            params: { before: "editProfile" },
+          });
         })
         .catch(() => {
           this.disabled = false;

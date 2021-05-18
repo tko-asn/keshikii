@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message :info="messages.informations"></Message>
     <div id="view-post-container" class="hero-body">
       <div class="container">
         <div class="columns is-vcentered has-text-centered is-marginless">
@@ -106,7 +106,7 @@
 import { publicApi } from "@/api";
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
+import Message from "@/components/Message";
 
 export default {
   computed: {
@@ -157,12 +157,15 @@ export default {
   },
   components: {
     GlobalMenu,
-    GlobalMessage,
+    Message,
   },
   props: ["id"],
   data() {
     return {
       post: {},
+      messages: {
+        informations: [],
+      },
     };
   },
   mounted() {
@@ -221,7 +224,7 @@ export default {
     },
     addToFavoriteUsers() {
       if (!this.$store.getters["auth/isLoggedIn"]) {
-        this.$router.push({ name: "login", params: { before: "viewPost" } });
+        this.$router.push({ name: "login" });
       } else {
         api
           .post("/following/", { followed_user: this.returnAuthor.id })
@@ -244,6 +247,18 @@ export default {
         this.$store.dispatch("auth/removeFavoriteUser", deleteUserData);
       });
     },
+  },
+  // メッセージの表示が必要な場合は
+  // dataのmessagesに値を保存して
+  // Messageコンポーネントに渡す
+  beforeRouteEnter(to, from, next) {
+    if (to.params.before === "editPost") {
+      next((vm) => {
+        vm.messages.informations.push("投稿を編集しました。");
+      });
+    } else {
+      next();
+    }
   },
 };
 </script>

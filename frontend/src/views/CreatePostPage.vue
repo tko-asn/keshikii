@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="post-container" class="container mt-6 mb-6">
       <div class="columns is-centered">
         <form
@@ -61,22 +61,22 @@
 <script>
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import PostLocationForm from "@/components/PostLocationForm";
 import PostStatusForm from "@/components/PostStatusForm";
 import PostCategoryForm from "@/components/PostCategoryForm";
 import PostImageForm from "@/components/PostImageForm";
 import ValidationMessage from "@/components/ValidationMessage";
+import Message from "@/components/Message";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
     PostLocationForm,
     PostStatusForm,
     PostCategoryForm,
     PostImageForm,
     ValidationMessage,
+    Message,
   },
   data() {
     return {

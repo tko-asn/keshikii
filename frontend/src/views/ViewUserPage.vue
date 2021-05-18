@@ -17,7 +17,7 @@
       </template>
     </ModalWindow>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="view-user-container">
       <div class="container">
         <UserProfileArea :user="user"></UserProfileArea>
@@ -80,7 +80,6 @@
 <script>
 import { publicApi } from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import ModalWindow from "@/components/ModalWindow";
 import ViewFavoriteUsers from "@/components/ViewFavoriteUsers";
 import ViewFollowers from "@/components/ViewFollowers";
@@ -89,12 +88,12 @@ import PostsList from "@/components/PostsList";
 import Pagination from "@/components/Pagination";
 import UserProfileArea from "@/components/UserProfileArea";
 import UserOverview from "@/components/UserOverview";
+import Message from "@/components/Message";
 import store from "@/store";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
     ModalWindow,
     ViewFavoriteUsers,
     ViewFollowers,
@@ -103,6 +102,7 @@ export default {
     Pagination,
     UserProfileArea,
     UserOverview,
+    Message,
   },
   mounted() {
     publicApi

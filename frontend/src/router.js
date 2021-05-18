@@ -43,8 +43,6 @@ function goToLoginPage(to, from, next) { // ログインページへ移動させ
 router.beforeEach((to, from, next) => {
 	const isLoggedIn = store.getters['auth/isLoggedIn'];
 	const token = localStorage.getItem('access');
-	// console.log('to.path=', to.path);
-	// console.log('isLoggedIn', isLoggedIn);
 	if (to.matched.some(record => record.meta.requiredAuth)) {
 		if (isLoggedIn) { // ログインしていれば遷移可能
 			next();
