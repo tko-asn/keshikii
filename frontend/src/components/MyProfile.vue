@@ -59,12 +59,14 @@ export default {
     api.get("/users_post/").then((response) => {
       this.myPostsCount = response.data.count;
     });
-    api.get("/following/?followers=True").then((followingObjects) => {
-      followingObjects.data.forEach((following) => {
-        this.myFollowers.push(following.followed_by);
-        this.numberOfFollowers = followingObjects.data.length;
+    api
+      .get("/following/", { params: { followers: "True" } })
+      .then((followingObjects) => {
+        followingObjects.data.forEach((following) => {
+          this.myFollowers.push(following.followed_by);
+          this.numberOfFollowers = followingObjects.data.length;
+        });
       });
-    });
   },
   computed: {
     ...mapGetters("auth", ["favoriteUsersList"]),
@@ -80,7 +82,8 @@ export default {
       this.$emit("showFollowers", this.myFollowers);
     },
     showMyFavoriteUsers() {
-      this.$emit("showFavoriteUsers"); // mypageでのViewFavoriteUserはvuexから値を得るためここからデータを送らなくていい。
+      // mypageでのViewFavoriteUserはvuexから値を得るためここからデータを送らなくていい。
+      this.$emit("showFavoriteUsers");
     },
     moveTab(tabIndex) {
       this.$emit("moveTabInMyPage", tabIndex);

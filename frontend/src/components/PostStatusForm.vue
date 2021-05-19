@@ -25,7 +25,12 @@
 
 <script>
 export default {
-  props: ["origin"],
+  props: {
+    origin: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       status: "public",

@@ -1,7 +1,7 @@
 <template>
   <div>
     <GlobalMenu></GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message></Message>
     <div id="post-container" class="container mt-6 mb-6">
       <div class="columns is-centered">
         <form
@@ -13,11 +13,7 @@
             <div class="content mt-6">
               <h1 class="has-text-centered">Post Form</h1>
             </div>
-            <PostImageForm
-              @changeImage="setImageFile"
-              :defaultSrc="''"
-              :defaultFileName="''"
-            ></PostImageForm>
+            <PostImageForm @changeImage="setImageFile"></PostImageForm>
             <div class="field mt-5">
               <div class="control pt-3">
                 <input
@@ -39,17 +35,13 @@
             </div>
             <PostCategoryForm
               @changeSelectedCategorys="setCategorys($event)"
-              :defaultCategorys="[]"
             ></PostCategoryForm>
             <PostLocationForm
               @send-zip="saveZip($event)"
               @send-prefecture="savePrefecture($event)"
               @send-location="saveLocation($event)"
             ></PostLocationForm>
-            <PostStatusForm
-              @changeRadio="setStatus($event)"
-              :origin="''"
-            ></PostStatusForm>
+            <PostStatusForm @changeRadio="setStatus($event)"></PostStatusForm>
             <ValidationMessage :messages="messages"></ValidationMessage>
             <div class="field is-grouped mt-5 mb-2">
               <button
@@ -69,22 +61,22 @@
 <script>
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import PostLocationForm from "@/components/PostLocationForm";
 import PostStatusForm from "@/components/PostStatusForm";
 import PostCategoryForm from "@/components/PostCategoryForm";
 import PostImageForm from "@/components/PostImageForm";
 import ValidationMessage from "@/components/ValidationMessage";
+import Message from "@/components/Message";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
     PostLocationForm,
     PostStatusForm,
     PostCategoryForm,
     PostImageForm,
     ValidationMessage,
+    Message,
   },
   data() {
     return {

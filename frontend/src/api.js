@@ -13,8 +13,9 @@ const api = axios.create({
 
 api.interceptors.request.use(
 	config => {
-		store.dispatch('message/clearMessages');
-		// apiを叩くときは必ずtokenの検証を行っている。
+		// リクエスト時にメッセージを初期化
+		store.dispatch('messages/clear');
+		// apiを叩くときは必ずtokenの検証を行っている
 		const token = localStorage.getItem('access');
 		if (token) {
 			config.headers.Authorization = 'JWT ' + token;
@@ -31,36 +32,36 @@ api.interceptors.request.use(
 api.interceptors.response.use(
 	response => response,
 	error => {
-		// console.log('error.response = ', error.response);
-		store.dispatch('message/setAddition', { messageType: 'error', process: 'api' });
 		const statusCode = error.response ? error.response.status : 500;
 		let message;
 		if (statusCode === 400) { // バリデーションエラー
-			store.dispatch('message/setAddition', { messageType: 'warning', process: 'api' });
 			let messages = [].concat.apply([], Object.values(error.response.data));
-			store.dispatch('message/setWarningMessages', { messages: messages });
+			for (const message of messages) {
+				store.dispatch('messages/add', message);
+			}
 		} else if (statusCode === 401) { // 認証エラー
 			const token = localStorage.getItem('access');
 			if (token != null) {
-				message = 'ログインしてください。';
+				message = 'トークンの有効期限によりログアウトしました。';
 			} else {
-				message = '入力項目のいずれかが間違っています。';
+				message = 'ユーザーの認証に失敗しました。';
 			}
 			store.dispatch('auth/logout'); // 認証情報とトークンの削除
-			store.dispatch('message/setErrorMessage', { message: message });
+			store.dispatch('messages/add', message);
 		} else if (statusCode === 403) { // パーミッションエラー
 			message = '許可されていません。';
-			store.dispatch('message/setErrorMessage');
+			store.dispatch('messages/add', message);
 		} else {
 			message = '問題が発生しました。';
-			store.dispatch('message/setErrorMessage', { message: message });
+			store.dispatch('messages/add', message);
 		}
 		return Promise.reject(error);
 	}
 );
 
 
-const publicApi = axios.create({ // リクエスト時にトークンの検証を行わない。
+// リクエスト時にトークンの検証を行わない。
+const publicApi = axios.create({
 	baseURL: process.env.VUE_APP_API_BASE_URL,
 	timeout: 30000,
 	headers: {
@@ -70,23 +71,32 @@ const publicApi = axios.create({ // リクエスト時にトークンの検証�
 });
 
 
+publicApi.interceptors.request.use(
+	config => {
+		// リクエスト時にメッセージを初期化
+		store.dispatch('messages/clear');
+		return config;
+	},
+	error => Promise.reject(error)
+);
+
+
 publicApi.interceptors.response.use(
 	response => response,
 	error => {
-		// console.log('error.response = ', error.response);
-		store.dispatch('message/setAddition', { messageType: 'error', process: 'api' });
 		const statusCode = error.response ? error.response.status : 500;
 		let message;
 		if (statusCode === 400) { // バリデーションエラー
-			store.dispatch('message/setAddition', { messageType: 'warning', process: 'api' })
 			let messages = [].concat.apply([], Object.values(error.response.data));
-			store.dispatch('message/setWarningMessages', { messages: messages });
+			for (const message of messages) {
+				store.dispatch('messages/add', message);
+			}
 		} else if (statusCode === 403) { // パーミッションエラー
 			message = '許可されていません。';
-			store.dispatch('message/setErrorMessage');
+			store.dispatch('messages/add', message);
 		} else {
 			message = '問題が発生しました。';
-			store.dispatch('message/setErrorMessage', { message: message });
+			store.dispatch('messages/add', message);
 		}
 		return Promise.reject(error);
 	}

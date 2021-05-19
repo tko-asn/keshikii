@@ -21,7 +21,7 @@
         </div>
       </div>
     </GlobalMenu>
-    <GlobalMessage></GlobalMessage>
+    <Message :info="messages.informations"></Message>
     <div id="home-container" class="container mt-4">
       <div class="columns is-marginless">
         <div class="column content has-text-centered">
@@ -52,7 +52,6 @@
             <Pagination
               @paginate="setPostsInHome($event)"
               class="mt-6"
-              :id="''"
             ></Pagination>
           </div>
           <CategoryFilter
@@ -73,18 +72,18 @@
 <script>
 import { publicApi } from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
-import GlobalMessage from "@/components/GlobalMessage";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
 import PostsList from "@/components/PostsList";
+import Message from "@/components/Message";
 
 export default {
   components: {
     GlobalMenu,
-    GlobalMessage,
     Pagination,
     CategoryFilter,
     PostsList,
+    Message,
   },
   props: ["before"],
   data() {
@@ -93,10 +92,13 @@ export default {
       searchKeyword: "",
       filtering: false,
       noPosts: "",
+      messages: {
+        informations: [],
+      },
     };
   },
   mounted() {
-    publicApi.get("/posts/").then(response => {
+    publicApi.get("/posts/").then((response) => {
       if (response.data.results.length) {
         this.posts = response.data.results;
         this.$store.dispatch("pagination/setPagination", response.data);
@@ -121,7 +123,7 @@ export default {
     },
     clickForSearch() {
       publicApi
-        .get("/posts/?keyword=" + this.searchKeyword)
+        .get("/posts/", { params: { keyword: this.searchKeyword } })
         .then((response) => {
           this.posts = response.data.results;
           if (this.posts.length) {
@@ -139,28 +141,29 @@ export default {
       this.filtering = !this.filtering;
     },
   },
+  // メッセージの表示が必要な場合は
+  // dataのmessagesに値を保存して
+  // Messageコンポーネントに渡す
   beforeRouteEnter(to, from, next) {
-    // mountedでapiを叩くときにinterceptorsの処理でmessageが削除されるのでdataにmessageを一時退避させる。
     if (to.params.before === "create") {
       next((vm) => {
-        vm.$store.dispatch("message/setAddition", {
-          messageType: "info",
-          process: "created",
-        });
+        vm.messages.informations.push("投稿しました。");
       });
     } else if (to.params.before === "logout") {
       next((vm) => {
-        vm.$store.dispatch("message/setAddition", {
-          messageType: "info",
-          process: "afterLogout",
-        });
+        vm.messages.informations.push("ログアウトしました。");
       });
     } else if (to.params.before === "login") {
       next((vm) => {
-        vm.$store.dispatch("message/setAddition", {
-          messageType: "info",
-          process: "login",
-        });
+        vm.messages.informations.push("ログインしました。");
+      });
+    } else if (to.params.before === "signup") {
+      next((vm) => {
+        vm.messages.informations.push("サインアップしました。");
+      });
+    } else if (to.params.before === "deletePost") {
+      next((vm) => {
+        vm.messages.informations.push("投稿を削除しました。");
       });
     } else {
       next();

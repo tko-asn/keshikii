@@ -28,7 +28,16 @@
 import Compressor from "compressorjs";
 
 export default {
-  props: ["defaultSrc", "defaultFileName"],
+  props: {
+    defaultSrc: {
+      type: String,
+      default: "",
+    },
+    defaultFileName: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       previewSrc: "", // imgタグのsrc属性に与える
@@ -63,24 +72,14 @@ export default {
               _this.previewSrc = fileData;
               // 指定画像の変化があれば新しい画像のファイルを親コンポーネントへ渡す
               _this.$emit("changeImage", _this.picture, _this.fileName);
-            })
-            .catch(() => {
-              const errorMessage = "画像のアップロードに失敗しました。";
-              _this.$store.dispatch("message/setErrorMessage", {
-                message: errorMessage,
-              });
             });
         },
         maxWidth: 400,
         maxHeight: 400,
         mimeType: "image/jpeg",
         // 圧縮失敗時の処理
-        error() {
-          this.$store.dispatch("message/setErrorMessage", {
-            message:
-              "画像の読み込みに失敗しました。もう一度やり直してください。",
-          });
-        },
+        // error() {
+        // },
       });
     },
   },

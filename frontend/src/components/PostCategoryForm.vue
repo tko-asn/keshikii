@@ -72,7 +72,12 @@
 
 <script>
 export default {
-  props: ["defaultCategorys"],
+  props: {
+    defaultCategorys: {
+      type: Array,
+      default: () => [],
+    },
+  },
   data() {
     return {
       parentCategory: "",
