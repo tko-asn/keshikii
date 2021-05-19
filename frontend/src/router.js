@@ -30,7 +30,13 @@ const router = new Router({
 		{ path: '/user/:username', component: ViewUserPage, props: true, name: 'viewUser' },
 		{ path: '/edit/profile', component: EditProfilePage, name: 'editProfile', meta: { requiredAuth: true } },
 		{ path: '*', redirect: '/' }
-	]
+	],
+	scrollBehavior(to, from, savedPosition) {
+		if (savedPosition) {
+			return savedPosition;
+		}
+		return { x: 0, y: 0 };
+	}
 });
 
 function goToLoginPage(to, from, next) { // ログインページへ移動させる
