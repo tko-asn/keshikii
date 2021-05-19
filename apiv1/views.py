@@ -3,7 +3,7 @@ from django.db.models import Q
 from django_filters import rest_framework as filters
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, mixins
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly, IsAuthenticated
 )
@@ -19,14 +19,31 @@ from .serializers import (
 )
 from .paginations import CustomPagination
 from .filters import PostFilter
-from .permissions import UsersPostPermission
+from .permissions import (
+    UsersPostPermission, MyFavoritePostsPermission
+)
 
 
-class PublicPostViewSet(viewsets.ModelViewSet):
-    """status='public'の投稿用ViewSet"""
+class PublicPostViewSet(mixins.RetrieveModelMixin, 
+                        mixins.ListModelMixin, 
+                        viewsets.GenericViewSet):
+    """
+    公開されている投稿取得（一覧・個別）View
+
+    自分の投稿は扱わない
+    
+    URL: /posts/
+
+    以下アクセス元
+    ViewPostPage.vue
+    HomePage.vue
+    ViewUserPage.vue
+    CategoryFilter.vue
+    Pagination.vue
+
+    """
 
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = PostFilter
@@ -44,8 +61,19 @@ class PublicPostViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-posted_date')
 
 
-class UsersPostViewSet(viewsets.ModelViewSet):
-    """自分の投稿用ViewSet"""
+class MyPostViewSet(viewsets.ModelViewSet):
+    """
+    自分の投稿を扱うViewSet
+
+    URL: /users_post/
+
+    以下アクセス元
+    EditPostPage.vue
+    MyPosts.vue
+    MyProfile.vue
+    Pagination.vue
+    CreatePostPage.vue
+    """
 
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, UsersPostPermission]
@@ -59,19 +87,39 @@ class UsersPostViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class CustomUserViewSet(viewsets.ModelViewSet):
-    """ユーザー情報用ViewSet"""
+class CustomUserViewSet(mixins.RetrieveModelMixin,
+                        mixins.UpdateModelMixin,
+                        viewsets.GenericViewSet):
+    """
+    自分以外のユーザー情報取得（個別）・更新View
+
+    お気に入りの投稿への追加・削除も行う
+
+    URL: /custom_users/
+
+    以下アクセス元
+    ViewPostPage.vue
+    ViewUserPage.vue
+    """
 
     queryset = get_user_model().objects.all()
     serializer_class = CustomUserSerializer
     lookup_field = 'username'
 
 
-class UsersFavoritePostsViewSet(viewsets.ModelViewSet):
-    """お気に入りの投稿用ViewSet"""
+class FavoritePostsListView(generics.ListAPIView):
+    """
+    お気に入りの投稿一覧取得APIクラス
+    
+    URL: /favorite_posts/
+
+    以下アクセス元
+    MyFavorites.vue
+    Pagination.vue
+    """
 
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, MyFavoritePostsPermission]
     pagination_class = CustomPagination
 
     def get_queryset(self):
@@ -83,8 +131,21 @@ class UsersFavoritePostsViewSet(viewsets.ModelViewSet):
         )
 
 
-class FollowingViewSet(viewsets.ModelViewSet):
-    """自分のフォロワー・フォローユーザーの情報用ViewSet"""
+class FollowingViewSet(mixins.CreateModelMixin,
+                       mixins.DestroyModelMixin,
+                       mixins.ListModelMixin,
+                       viewsets.GenericViewSet):
+    """
+    自分のフォロワー・フォローユーザーの情報取得（一覧）・作成・削除ViewSet
+    
+    URL: /following/
+
+    以下アクセス元
+    ViewUserPage.vue
+    MyProfile.vue
+    ViewPostPage.vue
+    UserProfileArea.vue
+    """
 
     serializer_class = FollowingSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
