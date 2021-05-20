@@ -23,6 +23,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'favorite_posts', 'icon', 'icon_url', 'icon_filename', 
             'registered_date',
         ]
+        extra_kwargs = {
+            'icon': {
+                'write_only': True,
+            }
+        }
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -54,6 +59,11 @@ class PostSerializer(serializers.ModelSerializer):
             'author', 'status', 'category', 'zip_code', 
             'prefecture', 'location'
         ]
+        extra_kwargs = {
+            'picture': {
+                'write_only': True,
+            }
+        }
 
 
 class FollowingSerializer(serializers.ModelSerializer):
