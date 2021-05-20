@@ -12,11 +12,11 @@
           name="resume"
           @change="onImageChange"
         />
-        <span class="file-cta">
+        <span class="file-cta image-button">
           <span class="file-icon">
             <fa-icon icon="file-upload"></fa-icon>
           </span>
-          <span class="file-label"> 画像を選択 </span>
+          <span class="file-label select-image"> 画像を選択 </span>
         </span>
         <span class="file-name">{{ this.fileName }}</span>
       </label>
@@ -66,13 +66,11 @@ export default {
         quality: 0.5,
         // 圧縮成功時の処理
         success(result) {
-          _this
-            .getFileData(result)
-            .then((fileData) => {
-              _this.previewSrc = fileData;
-              // 指定画像の変化があれば新しい画像のファイルを親コンポーネントへ渡す
-              _this.$emit("changeImage", _this.picture, _this.fileName);
-            });
+          _this.getFileData(result).then((fileData) => {
+            _this.previewSrc = fileData;
+            // 指定画像の変化があれば新しい画像のファイルを親コンポーネントへ渡す
+            _this.$emit("changeImage", _this.picture, _this.fileName);
+          });
         },
         maxWidth: 400,
         maxHeight: 400,
@@ -108,5 +106,17 @@ export default {
   max-width: 100%;
   height: auto;
   margin: 0 auto;
+}
+@media screen and (max-width: 768px) {
+  .select-image {
+    display: none;
+  }
+  .image-button {
+    width: 15%;
+  }
+  .image-button > span {
+    margin: 0;
+    width: 100%;
+  }
 }
 </style>
