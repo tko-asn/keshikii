@@ -88,7 +88,6 @@ class MyPostViewSet(viewsets.ModelViewSet):
 
 
 class CustomUserViewSet(mixins.RetrieveModelMixin,
-                        mixins.UpdateModelMixin,
                         viewsets.GenericViewSet):
     """
     自分以外のユーザー情報取得（個別）・更新View
