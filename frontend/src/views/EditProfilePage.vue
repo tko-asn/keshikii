@@ -27,7 +27,7 @@
                   <span class="file-icon">
                     <fa-icon icon="file-upload"></fa-icon>
                   </span>
-                  <span class="file-label"> 画像を選択 </span>
+                  <span id="select-icon" class="file-label"> 画像 </span>
                 </span>
                 <span class="file-name">{{ this.iconFileName }}</span>
               </label>
@@ -139,11 +139,9 @@ export default {
         quality: 0.6,
         // 圧縮成功時の処理
         success(result) {
-          _this
-            .getFileData(result)
-            .then((fileData) => {
-              _this.newIconSrc = fileData;
-            });
+          _this.getFileData(result).then((fileData) => {
+            _this.newIconSrc = fileData;
+          });
         },
         maxWidth: 200,
         maxHeight: 200,
@@ -190,7 +188,7 @@ export default {
 
 <style scoped>
 #image-select {
-  width: 30%;
+  width: 25%;
 }
 .form-container {
   margin: 0 auto;
@@ -218,5 +216,16 @@ button {
   height: 100px;
   object-fit: cover;
   border-radius: 50%;
+}
+@media screen and (max-width: 768px) {
+  #select-icon {
+    display: none;
+  }
+  #image-select {
+    width: 10%;
+  }
+  #image-select > span {
+    width: 100%;
+  }
 }
 </style>
