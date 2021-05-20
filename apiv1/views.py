@@ -20,18 +20,19 @@ from .serializers import (
 from .paginations import CustomPagination
 from .filters import PostFilter
 from .permissions import (
-    UsersPostPermission, MyFavoritePostsPermission
+    UsersPostPermission, MyFavoritePostsPermission,
+    MyFollowingDataPermission,
 )
 
 
-class PublicPostViewSet(mixins.RetrieveModelMixin, 
-                        mixins.ListModelMixin, 
+class PublicPostViewSet(mixins.RetrieveModelMixin,
+                        mixins.ListModelMixin,
                         viewsets.GenericViewSet):
     """
     公開されている投稿取得（一覧・個別）View
 
     自分の投稿は扱わない
-    
+
     URL: /posts/
 
     以下アクセス元
@@ -109,7 +110,7 @@ class CustomUserViewSet(mixins.RetrieveModelMixin,
 class FavoritePostsListView(generics.ListAPIView):
     """
     お気に入りの投稿一覧取得APIクラス
-    
+
     URL: /favorite_posts/
 
     以下アクセス元
@@ -136,7 +137,7 @@ class FollowingViewSet(mixins.CreateModelMixin,
                        viewsets.GenericViewSet):
     """
     自分のフォロワー・フォローユーザーの情報取得（一覧）・作成・削除ViewSet
-    
+
     URL: /following/
 
     以下アクセス元
@@ -147,7 +148,9 @@ class FollowingViewSet(mixins.CreateModelMixin,
     """
 
     serializer_class = FollowingSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [
+        IsAuthenticatedOrReadOnly, MyFollowingDataPermission
+    ]
 
     def get_queryset(self):
         # ユーザーのフォロワー取得
