@@ -179,7 +179,6 @@ export default {
       // 元の投稿データから画像関連の属性を削除
       delete this.post.picture_url;
       delete this.post.picture_filename;
-      delete this.post.picture;
       Object.entries(this.post).forEach(([key, value]) => {
         if (key === "category") {
           value.forEach((value) => {
