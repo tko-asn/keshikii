@@ -89,16 +89,13 @@ class MyPostViewSet(viewsets.ModelViewSet):
 
 
 class CustomUserViewSet(mixins.RetrieveModelMixin,
-                        viewsets.GenericViewSet):
+                     viewsets.GenericViewSet):
     """
-    自分以外のユーザー情報取得（個別）・更新View
-
-    お気に入りの投稿への追加・削除も行う
+    自分以外のユーザー情報取得（個別）View
 
     URL: /custom_users/
 
     以下アクセス元
-    ViewPostPage.vue
     ViewUserPage.vue
     """
 
