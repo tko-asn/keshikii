@@ -110,7 +110,7 @@ export default {
       .then((userResponse) => {
         this.user = userResponse.data;
         publicApi
-          .get("/following/?other=" + this.user.id)
+          .get("/following/", { params: { other: this.user.id } })
           .then((followingObjects) => {
             // userのフォローユーザーを取得
             followingObjects.data.forEach((followerInfo) => {

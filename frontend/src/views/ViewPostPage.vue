@@ -195,10 +195,7 @@ export default {
         ].slice(); // リストをコピー
         favoritePostsIdList.push(this.id); // コピーしたリストに追加
         api
-          .patch(
-            "/custom_users/" + this.$store.getters["auth/username"] + "/",
-            { favorite_posts: favoritePostsIdList }
-          )
+          .patch("/auth/users/me/", { favorite_posts: favoritePostsIdList })
           .then(() => {
             this.$store.dispatch(
               "auth/setFavoritePostsIdList",
@@ -215,7 +212,7 @@ export default {
         (id) => id !== this.id
       );
       api
-        .patch("/custom_users/" + this.$store.getters["auth/username"] + "/", {
+        .patch("/auth/users/me/", {
           favorite_posts: newFavoritePostsIdList,
         })
         .then(() => {
