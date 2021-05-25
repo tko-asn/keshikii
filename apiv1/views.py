@@ -153,9 +153,12 @@ class FollowingViewSet(mixins.CreateModelMixin,
         # ユーザーのフォロワー取得
         if self.request.query_params.get('followers') == 'True':
             user_id = self.request.query_params.get('user')
-            user = self.request.user
             if user_id:
                 user = get_user_model().objects.get(id=user_id)
+            elif self.request.user.is_authenticated:
+                user = self.request.user
+            else:
+                return []
             following_list = Following.objects.filter(followed_user=user.id)
             if not following_list:
                 return []
@@ -163,10 +166,13 @@ class FollowingViewSet(mixins.CreateModelMixin,
 
         # ユーザーのフォローユーザー取得
         other_user_id = self.request.query_params.get('other')
-        user = self.request.user
         # 指定のユーザーのフォローユーザー取得
         if other_user_id:
             user = get_user_model().objects.get(id=other_user_id)
+        elif self.request.user.is_authenticated:
+            user = self.request.user
+        else:
+            return []
         following_list = user.followed_by.all()
         if not following_list:
             return []
