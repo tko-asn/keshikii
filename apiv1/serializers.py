@@ -10,11 +10,20 @@ class CustomUserSerializer(serializers.ModelSerializer):
     favorite_posts = serializers.PrimaryKeyRelatedField(
         many=True, 
         queryset=Post.objects.all(),
+        required=False,
     )
     registered_date = serializers.DateTimeField(
         format='%Y年%m月%d日 %H:%M:%S',
         read_only=True,
     )
+    icon_url = serializers.SerializerMethodField()
+    icon_filename = serializers.SerializerMethodField()
+
+    def get_icon_url(self, obj):
+        return obj.icon_url
+
+    def get_icon_filename(self, obj):
+        return obj.icon_filename
 
     class Meta:
         model = get_user_model()
@@ -43,6 +52,7 @@ class PostSerializer(serializers.ModelSerializer):
         queryset=Category.objects.all(), 
         many=True,
         allow_null=True,
+        required=False,
     )
 
     def get_picture_url(self, obj):
@@ -69,7 +79,9 @@ class PostSerializer(serializers.ModelSerializer):
 class FollowingSerializer(serializers.ModelSerializer):
     followed_by = CustomUserSerializer(read_only=True)
     followed_user = serializers.PrimaryKeyRelatedField(
-        queryset=get_user_model().objects.all(), write_only=True)
+        queryset=get_user_model().objects.all(), 
+        write_only=True,
+    )
     user_extra_field = serializers.SerializerMethodField()
 
     def get_user_extra_field(self, obj):
@@ -83,3 +95,4 @@ class FollowingSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'followed_by', 'followed_user', 'user_extra_field'
         ]
+        
