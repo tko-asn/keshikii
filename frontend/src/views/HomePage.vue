@@ -39,7 +39,7 @@
       </div>
 
       <!-- 投稿が存在する場合 -->
-      <div v-if="posts.length">
+      <div v-if="count">
         <!-- フィルタ -->
         <div class="pb-5">
           <!-- フィルタ表示切り替えボタン -->
@@ -55,7 +55,6 @@
           <CategoryFilter
             id="tablet-category-filter"
             class="p-4"
-            @searchForCategory="setPostsInHome($event)"
             v-show="filtering"
           ></CategoryFilter>
         </div>
@@ -63,16 +62,12 @@
         <div class="columns posts-container is-marginless">
           <!-- 投稿表示部分 -->
           <div class="column">
-            <PostsList :posts="posts"></PostsList>
-            <Pagination
-              @paginate="setPostsInHome($event)"
-              class="mt-6"
-            ></Pagination>
+            <PostsList :posts="results"></PostsList>
+            <Pagination class="mt-6"></Pagination>
           </div>
           <!-- フィルタ部分（デスクトップ用） -->
           <CategoryFilter
             id="pc-category-filter"
-            @searchForCategory="setPostsInHome($event)"
             class="column is-3 ml-5"
             v-show="filtering"
           ></CategoryFilter>
@@ -89,6 +84,7 @@
 
 <script>
 import { publicApi } from "@/api";
+import { mapGetters } from "vuex";
 import GlobalMenu from "@/components/GlobalMenu";
 import Pagination from "@/components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
@@ -106,7 +102,6 @@ export default {
   props: ["before"],
   data() {
     return {
-      posts: [],
       searchKeyword: "",
       filtering: false,
       noPosts: "",
@@ -115,11 +110,13 @@ export default {
       },
     };
   },
+  computed: {
+    ...mapGetters("pagination", ["results", "count"]),
+  },
   mounted() {
     publicApi.get("/posts/").then((response) => {
       // 投稿が存在するとき
       if (response.data.results.length) {
-        this.posts = response.data.results;
         this.$store.dispatch("pagination/setPagination", response.data);
       } else {
         // 投稿が空のとき
@@ -131,16 +128,6 @@ export default {
     // 投稿詳細画面へ
     viewPost(postId) {
       this.$router.push({ name: "viewPost", params: { id: postId } });
-    },
-    setPostsInHome(postsData) {
-      // 保存済みのpostsを初期化
-      // vuexのページネーションの設定はCategoryFilterで行っている
-      this.posts = [];
-      if (postsData.length) {
-        this.posts = postsData;
-      } else {
-        this.noPosts = "投稿が見つかりませんでした。";
-      }
     },
     // キーワード検索
     clickForSearch() {

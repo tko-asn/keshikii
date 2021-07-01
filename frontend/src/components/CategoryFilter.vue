@@ -255,6 +255,7 @@ export default {
       // フィルタリング
       publicApi.get("/posts/" + query).then((response) => {
         this.$emit("searchForCategory", response.data.results);
+        // ページネーションの状態を更新
         this.$store.dispatch("pagination/setPagination", response.data);
         this.$store.dispatch(
           "pagination/registerSearchCategorys",

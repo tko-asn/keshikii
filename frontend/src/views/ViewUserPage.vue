@@ -28,7 +28,7 @@
                 class="tile is-child box click-cursor"
                 @click="switchTab(1)"
               >
-                <p class="title">{{ usersPostsCount }}</p>
+                <p class="title">{{ count }}</p>
                 <p class="subtitle">投稿数</p>
               </article>
             </div>
@@ -60,13 +60,9 @@
         ></TabMenu>
         <UserOverview :user="user" v-show="elementNumber === 0"></UserOverview>
         <div v-show="elementNumber === 1">
-          <template v-if="usersPosts.length">
-            <PostsList :posts="usersPosts"></PostsList>
-            <Pagination
-              @paginate="setPosts($event)"
-              :id="user.id"
-              class="mt-5"
-            ></Pagination>
+          <template v-if="count">
+            <PostsList :posts="results"></PostsList>
+            <Pagination :id="user.id" class="mt-5"></Pagination>
           </template>
           <template v-else>
             {{ noPosts }}
@@ -79,6 +75,7 @@
 
 <script>
 import { publicApi } from "@/api";
+import { mapGetters } from "vuex";
 import GlobalMenu from "@/components/GlobalMenu";
 import ModalWindow from "@/components/ModalWindow";
 import ViewFavoriteUsers from "@/components/ViewFavoriteUsers";
@@ -105,10 +102,13 @@ export default {
     Message,
   },
   mounted() {
+    // ユーザーの情報を取得
     publicApi
       .get("/custom_users/" + this.username + "/")
       .then((userResponse) => {
         this.user = userResponse.data;
+
+        // ユーザーのフォローしているユーザーを取得
         publicApi
           .get("/following/", { params: { other: this.user.id } })
           .then((followingObjects) => {
@@ -118,6 +118,8 @@ export default {
             });
             this.favoriteUsersCount = followingObjects.data.length;
           });
+
+        // ユーザーのフォロワーを取得
         publicApi
           .get("/following/", {
             params: { followers: "True", user: this.user.id },
@@ -130,6 +132,7 @@ export default {
             this.followCount = followingObjects.data.length;
           });
 
+        // ユーザーの投稿を取得
         publicApi
           .get("/posts/", {
             params: {
@@ -138,8 +141,7 @@ export default {
           })
           .then((postResponse) => {
             if (postResponse.data.results.length) {
-              this.usersPosts = postResponse.data.results;
-              this.usersPostsCount = postResponse.data.count;
+              // ページネーションの状態をセット
               this.$store.dispatch(
                 "pagination/setPagination",
                 postResponse.data
@@ -154,8 +156,6 @@ export default {
   data() {
     return {
       user: {},
-      usersPosts: [],
-      usersPostsCount: 0,
       followers: [],
       followCount: 0,
       favoriteUsers: [],
@@ -169,6 +169,10 @@ export default {
       optionNumber: false,
       noPosts: "",
     };
+  },
+  computed: {
+    // 投稿のリストと投稿数
+    ...mapGetters("pagination", ["results", "count"]),
   },
   methods: {
     showFollowers() {
@@ -185,9 +189,6 @@ export default {
     },
     switchElement(elementIndex) {
       this.elementNumber = elementIndex;
-    },
-    setPosts(posts) {
-      this.usersPosts = posts;
     },
     switchTab(num) {
       if (this.elementNumber !== num) {
