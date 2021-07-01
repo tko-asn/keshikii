@@ -95,6 +95,7 @@ export default {
     };
   },
   mounted() {
+    // ユーザーのデータを保存
     api.get("/auth/users/me/").then((response) => {
       this.user = response.data;
     });
@@ -119,6 +120,7 @@ export default {
     },
   },
   methods: {
+    // onIconChange内で使用する関数
     getFileData(file) {
       return new Promise((resolve, reject) => {
         this.newIcon = file;
@@ -129,8 +131,10 @@ export default {
         fileReader.onerror = (error) => reject(error);
       });
     },
+    // iconのフォームに変化があった場合の処理
     onIconChange(event) {
       const images = event.target.files || event.dataTransfer.files;
+      // 画像ファイル
       const data = images[0];
       const _this = this;
       // 投稿画像を圧縮
@@ -155,29 +159,37 @@ export default {
       this.disabled = true;
       // ユーザー名が空の場合
       this.messages = [];
+      // usernameフォームが空の場合
       if (!this.user.username) {
         this.messages.push("ユーザー名は必須項目です。");
         this.disabled = false;
         return;
       }
+
       const params = new FormData();
-      const editFields = ["username", "self_introduction"]; // 入力項目追加するごとに個々にも追加。
+      // 入力項目追加するごとにeditFieldsにも追加
+      const editFields = ["username", "self_introduction"];
       Object.entries(this.user).forEach(([key, value]) => {
         if (editFields.includes(key)) {
           params.append(key, value);
         }
       });
+
+      // 新規アイコンが設定された場合
       if (this.newIcon) {
         params.append("icon", this.newIcon, this.iconFileNameInData);
       }
+      // データベースに変更内容を反映
       api
         .patch("/auth/users/me/", params)
+        // 成功したらマイページへ移動
         .then(() => {
           this.$router.replace({
             name: "mypage",
             params: { before: "editProfile" },
           });
         })
+        // 失敗したらボタンを再度押せるようにする
         .catch(() => {
           this.disabled = false;
         });

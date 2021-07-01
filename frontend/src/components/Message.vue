@@ -4,7 +4,12 @@
     <div
       v-for="message in errorMessages"
       :key="message"
-      class="columns notification is-error is-light is-marginless is-paddingless opacity"
+      class="
+        columns
+        notification
+        is-error is-light is-marginless is-paddingless
+        opacity
+      "
       v-show="errorMessages.length"
     >
       <p class="column is-11 pl-5">{{ message }}</p>
@@ -14,11 +19,17 @@
       ></button>
     </div>
     <div v-if="warningMessages.length" class="div-space"></div>
+
     <!-- 注意 -->
     <div
       v-for="message in warningMessages"
       :key="message"
-      class="columns notification is-warning is-light is-marginless is-paddingless opacity"
+      class="
+        columns
+        notification
+        is-warning is-light is-marginless is-paddingless
+        opacity
+      "
       v-show="warningMessages.length"
     >
       <p class="column is-11 pl-5">{{ message }}</p>
@@ -28,11 +39,17 @@
       ></button>
     </div>
     <div v-if="infoMessages.length" class="div-space"></div>
+
     <!-- お知らせ -->
     <div
       v-for="message in infoMessages"
       :key="message"
-      class="columns notification is-info is-light is-marginless is-paddingless opacity"
+      class="
+        columns
+        notification
+        is-info is-light is-marginless is-paddingless
+        opacity
+      "
       v-show="infoMessages.length"
     >
       <p class="column is-11 pl-5">{{ message }}</p>
@@ -42,11 +59,18 @@
       ></button>
     </div>
     <div v-if="apiMessages.length" class="div-space"></div>
+
     <!-- apiからのエラーメッセージ等 -->
     <div
       v-for="message in apiMessages"
       :key="message"
-      class="columns notification is-warning is-light is-marginless is-paddingless opacity mb-1"
+      class="
+        columns
+        notification
+        is-warning is-light is-marginless is-paddingless
+        opacity
+        mb-1
+      "
       v-show="apiMessages.length"
     >
       <p class="column is-11 pl-5">{{ message }}</p>

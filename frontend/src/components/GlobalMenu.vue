@@ -1,5 +1,6 @@
 <template>
   <nav class="navbar is-primary" id="global-menu">
+    <!-- アプリ概要モーダル -->
     <ModalWindow :showWindow="modalInfo" @removeWindow="removeModalWindow">
       <template v-slot:appOverview>
         <AppOverview
@@ -7,11 +8,15 @@
         ></AppOverview>
       </template>
     </ModalWindow>
+
     <div class="container">
       <div class="navbar-brand is-marginless">
+        <!-- アプリのロゴ -->
         <router-link id="app-name" class="navbar-item" to="/">
           <img :src="logo" alt="keshikii" />
         </router-link>
+
+        <!-- タブレット用ハンバーガーメニューボタン -->
         <span id="tablet-search" class="navbar-item"><slot></slot></span>
         <a
           id="burger-button"
@@ -26,7 +31,11 @@
           <span aria-hidden="true"></span>
         </a>
       </div>
+
+      <!-- モバイル用検索フォーム -->
       <span id="mobile-search" class="navbar-item"><slot></slot></span>
+
+      <!-- ハンバーガメニュー -->
       <div v-show="isOpen" id="burger-menu">
         <a class="navbar-item" @click="showAppOverview">KESHKIIとは</a>
         <router-link to="/create/post" class="navbar-item">
@@ -43,6 +52,8 @@
           <a @click="logout" class="navbar-item"> ログアウト </a>
         </template>
       </div>
+
+      <!-- デスクトップ用メニュー -->
       <div class="navbar-menu is-marginless">
         <div class="navbar-end">
           <span class="navbar-item"><slot></slot></span>
@@ -50,11 +61,13 @@
           <router-link to="/create/post" class="navbar-item"
             >投稿する</router-link
           >
+          <!-- ログインしているとき -->
           <template v-if="isLoggedIn">
             <div
               id="dropdown-container"
               class="dropdown navbar-item is-paddingless pc-button-width"
             >
+              <!-- アカウントボタン -->
               <div id="dropdown-trigger" class="dropdown-trigger full">
                 <button
                   @click="toggleDropdown"
@@ -64,6 +77,7 @@
                   アカウント
                 </button>
               </div>
+              <!-- アカウントボタンのドロップダウンメニュー -->
               <div id="dropdown-menu" role="menu" v-show="isDown">
                 <div
                   class="dropdown-content"
@@ -79,6 +93,8 @@
               </div>
             </div>
           </template>
+
+          <!-- ログインしていないとき -->
           <template v-else>
             <router-link to="/signup" class="navbar-item">新規登録</router-link>
             <router-link to="/login" class="navbar-item">ログイン</router-link>
@@ -114,30 +130,36 @@ export default {
   },
   methods: {
     logout() {
+      // ログアウトを実行
       this.$store.dispatch("auth/logout");
+      // 現在のページがHomePageではないとき
       if (this.$route.path !== "/") {
         this.$router.replace({ name: "home", params: { before: "logout" } });
-      } else {
-        this.isOpen = false;
       }
     },
     toggleDropdown() {
       if (this.isDown) {
+        // isDownをfalseにしてドロップダウンメニューを非表示
         this.$store.dispatch("dropdown/changeIsDown", false);
       } else {
+        // isDownをtrueにしてドロップダウンメニューを表示
         this.$store.dispatch("dropdown/changeIsDown", true);
       }
     },
     toggleBurger() {
       if (this.isOpen) {
+        // isOpenをfalseにしてハンバーガーメニューを非表示
         this.$store.dispatch("dropdown/changeIsOpen", false);
       } else {
+        // isOpenをtrueにしてハンバーガーメニューを表示
         this.$store.dispatch("dropdown/changeIsOpen", true);
       }
     },
+    // ドロップダウンメニューにカーソルを乗せたときの処理
     addIsActiveClass(event) {
       event.target.classList.add("is-active");
     },
+    // ドロップダウンメニューからカーソルをどけたときの処理
     deleteIsActiveClass(event) {
       event.target.classList.remove("is-active");
     },
@@ -152,9 +174,11 @@ export default {
   },
   destroyed() {
     if (this.isOpen) {
+      // vuexのisOpenを初期化
       this.$store.dispatch("dropdown/changeIsOpen", false);
     }
     if (this.isDown) {
+      // vuexのisDownを初期化
       this.$store.dispatch("dropdown/changeIsDown", false);
     }
   },
