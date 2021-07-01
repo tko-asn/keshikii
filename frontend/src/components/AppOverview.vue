@@ -2,7 +2,10 @@
   <div id="app-overview">
     <div class="scroll-block">
       <div class="overview-container">
+        <!-- アプリ名 -->
         <h1 class="app-title pt-5 pb-3">KESHKIIとは</h1>
+
+        <!-- アプリ概要 -->
         <span>
           <span>誰でも気軽に</span>
           <span>写真を投稿できる</span>
@@ -30,8 +33,16 @@
           <span>観光地を他の人に</span>
           <span>紹介してみませんか？</span>
         </span>
+
+        <!-- モーダル非表示ボタン -->
         <a
-          class="button is-primary is-medium is-outlined mt-5 mb-5 border-radius"
+          class="
+            button
+            is-primary is-medium is-outlined
+            mt-5
+            mb-5
+            border-radius
+          "
           @click="remove"
           >閉じる</a
         >
@@ -44,6 +55,7 @@
 export default {
   methods: {
     remove() {
+      // モーダルを非表示
       this.$emit("removeModalInAppOverview");
     },
   },

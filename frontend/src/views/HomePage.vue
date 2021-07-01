@@ -1,7 +1,10 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu>
+      <!-- 投稿検索フォーム -->
       <div class="field has-addons search-container">
+        <!-- 検索フォーム -->
         <div id="search-input" class="control">
           <input
             class="input is-small is-fullwidth"
@@ -10,6 +13,7 @@
             v-model="searchKeyword"
           />
         </div>
+        <!-- 検索ボタン -->
         <div id="search-button" class="control">
           <a
             class="button is-info is-small is-fullwidth"
@@ -21,16 +25,24 @@
         </div>
       </div>
     </GlobalMenu>
+
+    <!-- モーダル -->
     <Message :info="messages.informations"></Message>
+
     <div id="home-container" class="container mt-4">
       <div class="columns is-marginless">
+        <!-- アプリ題名部分 -->
         <div class="column content has-text-centered">
           <h1 class="app-title a6-font-color">KESHKII</h1>
           <p class="mt-2 a6-font-color">景色共有サイト</p>
         </div>
       </div>
+
+      <!-- 投稿が存在する場合 -->
       <div v-if="posts.length">
+        <!-- フィルタ -->
         <div class="pb-5">
+          <!-- フィルタ表示切り替えボタン -->
           <div id="category-menu" class="pb-3">
             <a @click="switchFilter" v-show="!filtering"
               ><fa-icon icon="filter"></fa-icon> フィルタ</a
@@ -39,6 +51,7 @@
               ><fa-icon icon="times"></fa-icon> 閉じる</a
             >
           </div>
+          <!-- フィルタ部分（タブレット用） -->
           <CategoryFilter
             id="tablet-category-filter"
             class="p-4"
@@ -46,7 +59,9 @@
             v-show="filtering"
           ></CategoryFilter>
         </div>
+
         <div class="columns posts-container is-marginless">
+          <!-- 投稿表示部分 -->
           <div class="column">
             <PostsList :posts="posts"></PostsList>
             <Pagination
@@ -54,6 +69,7 @@
               class="mt-6"
             ></Pagination>
           </div>
+          <!-- フィルタ部分（デスクトップ用） -->
           <CategoryFilter
             id="pc-category-filter"
             @searchForCategory="setPostsInHome($event)"
@@ -62,6 +78,8 @@
           ></CategoryFilter>
         </div>
       </div>
+
+      <!-- 投稿が一件もないとき -->
       <div class="mt-6 columns has-text-centered" v-else>
         <h3 class="column a6-font-color">{{ noPosts }}</h3>
       </div>
@@ -99,21 +117,24 @@ export default {
   },
   mounted() {
     publicApi.get("/posts/").then((response) => {
+      // 投稿が存在するとき
       if (response.data.results.length) {
         this.posts = response.data.results;
         this.$store.dispatch("pagination/setPagination", response.data);
       } else {
+        // 投稿が空のとき
         this.noPosts = "投稿はありません。";
       }
     });
   },
   methods: {
+    // 投稿詳細画面へ
     viewPost(postId) {
       this.$router.push({ name: "viewPost", params: { id: postId } });
     },
     setPostsInHome(postsData) {
-      // 保存済みのpostsを初期化。
-      // vuexのページネーションの設定はCategoryFilterで行っている。
+      // 保存済みのpostsを初期化
+      // vuexのページネーションの設定はCategoryFilterで行っている
       this.posts = [];
       if (postsData.length) {
         this.posts = postsData;
@@ -121,23 +142,30 @@ export default {
         this.noPosts = "投稿が見つかりませんでした。";
       }
     },
+    // キーワード検索
     clickForSearch() {
       publicApi
         .get("/posts/", { params: { keyword: this.searchKeyword } })
         .then((response) => {
           this.posts = response.data.results;
+          // 投稿が存在する場合
           if (this.posts.length) {
+            // レスポンスからvuexのページネーションの情報を更新
             this.$store.dispatch("pagination/setPagination", response.data);
+            // 現在の検索キーワードをvuexに保存
             this.$store.dispatch(
               "pagination/registerSearchKeyword",
               this.searchKeyword
             );
+            // 投稿が存在しない場合
           } else {
             this.noPosts = "投稿が見つかりませんでした。";
           }
         });
     },
     switchFilter() {
+      // filtering(bool)を切り替え
+      // フィルタの表示・非表示を切り替え
       this.filtering = !this.filtering;
     },
   },
@@ -170,6 +198,7 @@ export default {
     }
   },
   destroyed() {
+    // vuexの検索ワードの値を初期化
     this.$store.dispatch("pagination/destroySearchKeyword");
   },
 };

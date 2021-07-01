@@ -1,6 +1,9 @@
 <template>
   <div class="panel">
+    <!-- モーダルの題名 -->
     <p class="panel-heading">フォロー中</p>
+
+    <!-- ユーザー表示部分 -->
     <div class="scroll-block">
       <a
         v-for="favoriteUser in favoriteUsersList"
@@ -8,11 +11,13 @@
         class="panel-block columns is-marginless"
         @click="goToUsersPage(favoriteUser.user_extra_field.username)"
       >
+        <!-- アイコン表示部分 -->
         <div class="column is-3-desktop is-4-tablet is-5-mobile">
           <div class="icon-box">
             <img :src="favoriteUser.user_extra_field.icon_url" alt="icon" />
           </div>
         </div>
+        <!-- フォローしているユーザーのユーザーネーム -->
         <div class="column username hidden">
           <h3>{{ favoriteUser.user_extra_field.username }}</h3>
         </div>
@@ -35,25 +40,35 @@ export default {
   },
   computed: {
     favoriteUsersList() {
+      // 現在のページがマイページの場合
       if (this.$route.name === "mypage") {
+        // vuexに保存されている自分のフォローしているユーザーを返す
         return this.$store.getters["auth/favoriteUsersList"];
-      } else {
-        return this.favoriteUsers;
       }
+      // 現在のページが自分以外のユーザーのページの場合
+      // propsを返す
+      return this.favoriteUsers;
     },
   },
   methods: {
     goToUsersPage(username) {
       const loginUsername = this.$store.getters["auth/username"];
+      // クリックされたユーザーがログインユーザー自身の場合
       if (username === loginUsername) {
+        // 現在のページがマイページの場合
         if (this.$route.name === "mypage") {
+          // モーダルを非表示
           this.$emit("removeModalInViewFavoriteUsers");
         } else {
+          // マイページへ
           this.$router.push("/mypage");
         }
+        // クリックされたユーザーが現在表示されているユーザーとは別のユーザー場合
       } else if (this.username !== username) {
         this.$router.push({ name: "viewUser", params: { username: username } });
+        // クリックされたユーザーと現在表示されているユーザーが同じ場合
       } else {
+        // モーダルを非表示
         this.$emit("removeModalInViewFavoriteUsers");
       }
     },

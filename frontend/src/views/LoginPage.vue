@@ -1,8 +1,13 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
     <div id="login-container" class="container mt-6">
+      <!-- ゲストユーザーの情報表示部分 -->
       <div id="guest-user">
         <h2>ゲストとしてログイン</h2>
         <div class="mb-3">
@@ -12,6 +17,8 @@
         <p>ユーザー名：test</p>
         <p>パスワード：test-pass</p>
       </div>
+
+      <!-- ログインフォーム -->
       <div class="columns is-centered">
         <form
           id="login-form"
@@ -19,10 +26,13 @@
           class="box column is-4-desktop is-6-tablet is-8-mobile"
         >
           <div id="form-container">
+            <!-- フォームの題名 -->
             <div class="content mt-6">
               <h1 class="has-text-centered">Login</h1>
             </div>
+
             <div class="mt-6">
+              <!-- ユーザー名のフォーム -->
               <div class="field pt-5 pb-1">
                 <div class="control">
                   <input
@@ -33,6 +43,7 @@
                   />
                 </div>
               </div>
+              <!-- パスワードのフォーム -->
               <div class="field">
                 <div class="control">
                   <input
@@ -44,6 +55,9 @@
                 </div>
               </div>
             </div>
+
+            <!-- ログインボタン -->
+            <!-- タブレットのログインボタン -->
             <button
               id="tablet-button"
               class="button is-primary is-fullwidth"
@@ -51,6 +65,8 @@
             >
               ログイン
             </button>
+
+            <!-- デスクトップのログインボタン -->
             <button
               class="button is-primary"
               id="pc-button"
@@ -86,6 +102,7 @@ export default {
   props: ["before"],
   methods: {
     login() {
+      // ボタンからの多重送信を防止
       this.disabled = true;
       this.$store
         .dispatch("auth/login", {
@@ -94,6 +111,7 @@ export default {
         })
         .then(() => {
           let nextPage = "";
+          // ログイン後の行き先が指定されている場合
           if (this.$route.query.next) {
             nextPage = this.$route.query.next;
           } else {
@@ -101,6 +119,7 @@ export default {
           }
           this.$router.replace(nextPage);
         })
+        // ログイン失敗時に再度ボタンを押せるようにする
         .catch(() => {
           this.disabled = false;
         });
@@ -114,7 +133,7 @@ export default {
   margin: 20px auto 0;
   padding: 15px;
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
-  background-color:lightgreen ;
+  background-color: lightgreen;
   width: 40%;
   border-radius: 20px;
   text-align: center;

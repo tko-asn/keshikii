@@ -27,34 +27,34 @@
                 >
               </div>
               <div class="mt-4">
-                <template v-if="isAuthor">
+                <template v-if="isYourPost">
                   <a
                     class="button is-primary is-medium"
                     @click="editPost"
-                    v-if="isLoggedIn && isYourPost"
+                    v-if="isLoggedIn"
                     >投稿を編集</a
                   >
                 </template>
                 <template v-else>
-                  <a
-                    v-if="!isYourFavoriteUser"
-                    @click="addToFavoriteUsers"
-                    class="button is-medium is-info is-outlined"
-                    >ユーザーをフォロー</a
-                  >
-                  <a
-                    v-else
-                    @click="removeFromFavoriteUsers"
-                    class="button is-medium is-info is-outlined"
-                    >フォロー解除</a
-                  >
+                  <UserFollowButton
+                    :userId="returnAuthor.id"
+                    :username="returnAuthor.username"
+                    :page="'viewPost'"
+                  ></UserFollowButton>
                 </template>
               </div>
             </div>
           </div>
         </div>
         <div
-          class="columns min-height mb-5 mt-6 border-top border-bottom is-marginless"
+          class="
+            columns
+            min-height
+            mb-5
+            mt-6
+            border-top border-bottom
+            is-marginless
+          "
         >
           <div class="column is-paddingless mt-2 min-height">
             <h6 class="mb-2 title-h6">投稿者</h6>
@@ -107,42 +107,30 @@ import { publicApi } from "@/api";
 import api from "@/api";
 import GlobalMenu from "@/components/GlobalMenu";
 import Message from "@/components/Message";
+import UserFollowButton from "@/components/UserFollowButton";
 
 export default {
   computed: {
+    // ログイン状態かどうか
     isLoggedIn() {
       return this.$store.getters["auth/isLoggedIn"];
     },
+    // 自分の投稿かどうか
     isYourPost() {
       const username = this.$store.getters["auth/username"];
       return username === this.returnAuthor.username;
     },
+    // 自分のお気に入りの投稿に入っているかどうか
     isYourFavoritePost() {
-      const favoritePostsIdList = this.$store.getters[
-        "auth/favoritePostsIdList"
-      ];
-      if (favoritePostsIdList.length) {
-        return favoritePostsIdList.includes(this.id);
-      } else {
+      const favoritePostsIdList =
+        this.$store.getters["auth/favoritePostsIdList"];
+      if (!favoritePostsIdList.length) {
         return false;
       }
+      return favoritePostsIdList.includes(this.id);
     },
-    isYourFavoriteUser() {
-      const favoriteUsersList = this.$store.getters["auth/favoriteUsersList"];
-      let isYourFavoriteUser = false;
-      if (favoriteUsersList.length) {
-        favoriteUsersList.forEach((userInfo) => {
-          if (
-            userInfo.user_extra_field.username === this.returnAuthor.username
-          ) {
-            isYourFavoriteUser = true;
-          }
-        });
-        return isYourFavoriteUser;
-      } else {
-        return isYourFavoriteUser;
-      }
-    },
+    // post.authorをそのまま利用するとエラーが発生するので
+    // computedを介してauthorのデータを参照できるようにした
     returnAuthor() {
       if (this.post.author) {
         return this.post.author;
@@ -150,15 +138,13 @@ export default {
         return {};
       }
     },
-    isAuthor() {
-      const loginUsername = this.$store.getters["auth/username"];
-      return this.returnAuthor.username === loginUsername;
-    },
   },
   components: {
     GlobalMenu,
     Message,
+    UserFollowButton,
   },
+  // URLから投稿のIDを取得
   props: ["id"],
   data() {
     return {
@@ -169,6 +155,7 @@ export default {
     };
   },
   mounted() {
+    // propsのIDから投稿の詳細なデータを取得
     publicApi
       .get("/posts/" + this.id + "/", {
         params: {
@@ -176,81 +163,67 @@ export default {
         },
       })
       .then((response) => {
+        // dataに保存
         this.post = response.data;
       });
   },
   methods: {
+    // 投稿者のページへ移動
     moveUserPage(username) {
       this.$router.push({ name: "viewUser", params: { username: username } });
     },
+    // 投稿を編集
     editPost() {
       this.$router.push({ name: "edit", params: { id: this.id } });
     },
+    // お気に入りの投稿に追加
     addToFavorites() {
+      // ログインしていない場合はログインページへ
       if (!this.$store.getters["auth/isLoggedIn"]) {
         this.$router.push({ name: "login", params: { before: "viewPost" } });
       } else {
-        const favoritePostsIdList = this.$store.getters[
-          "auth/favoritePostsIdList"
-        ].slice(); // リストをコピー
-        favoritePostsIdList.push(this.id); // コピーしたリストに追加
+        const favoritePostsIdList =
+          this.$store.getters["auth/favoritePostsIdList"].slice(); // リストをコピー
+        favoritePostsIdList.push(this.id); // コピーしたリストに表示中の投稿のIDを追加
+        // データベースの情報を更新
         api
           .patch("/auth/users/me/", { favorite_posts: favoritePostsIdList })
           .then(() => {
+            // vuexの状態を更新
             this.$store.dispatch(
               "auth/setFavoritePostsIdList",
               favoritePostsIdList
-            ); // vuexにて置き換え
+            );
           });
       }
     },
+    // お気に入りの投稿から削除
     removeFromFavorites() {
-      const oldFavoritePostsIdList = this.$store.getters[
-        "auth/favoritePostsIdList"
-      ];
+      const oldFavoritePostsIdList =
+        this.$store.getters["auth/favoritePostsIdList"];
+      // 削除後のお気に入りの投稿のIDのリストを作成
       const newFavoritePostsIdList = oldFavoritePostsIdList.filter(
         (id) => id !== this.id
       );
+      // データベースの情報を更新
       api
         .patch("/auth/users/me/", {
           favorite_posts: newFavoritePostsIdList,
         })
         .then(() => {
+          // vuexnの状態を更新
           this.$store.dispatch("auth/removeFavoritePost", this.id); // vuexから削除
         });
-    },
-    addToFavoriteUsers() {
-      if (!this.$store.getters["auth/isLoggedIn"]) {
-        this.$router.push({ name: "login" });
-      } else {
-        api
-          .post("/following/", { followed_user: this.returnAuthor.id })
-          .then((response) => {
-            // response.data: {'user_extra_field': {}, 'followed_by': {}, 'id': ''}
-            this.$store.dispatch("auth/setFavoriteUser", response.data);
-          });
-      }
-    },
-    removeFromFavoriteUsers() {
-      const favoriteUsersList = this.$store.getters["auth/favoriteUsersList"];
-      let deleteUserData = {};
-      favoriteUsersList.forEach((userInfo) => {
-        if (userInfo.user_extra_field.username === this.returnAuthor.username) {
-          deleteUserData = userInfo;
-        }
-      });
-      api.delete("/following/" + deleteUserData.id + "/").then(() => {
-        // favoriteUsersListから削除
-        this.$store.dispatch("auth/removeFavoriteUser", deleteUserData);
-      });
     },
   },
   // メッセージの表示が必要な場合は
   // dataのmessagesに値を保存して
   // Messageコンポーネントに渡す
   beforeRouteEnter(to, from, next) {
+    // 投稿編集ページからこのページに遷移してきたとき
     if (to.params.before === "editPost") {
       next((vm) => {
+        // メッセージをセット
         vm.messages.informations.push("投稿を編集しました。");
       });
     } else {

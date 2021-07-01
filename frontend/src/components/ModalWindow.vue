@@ -3,21 +3,32 @@
     @click="removeModalWindow"
     :class="{ displayNone: showWindow.hideWindow }"
   >
+    <!-- モーダルの黒い部分 -->
     <div id="modal-overlay" class="columns is-centered is-vcentered is-mobile">
+      <!-- モーダルの内容部分 -->
       <div
         id="modal-content"
-        class="column is-4-desktop is-6-tablet is-10-mobile is-paddingless no-func"
+        class="
+          column
+          is-4-desktop is-6-tablet is-10-mobile is-paddingless
+          no-func
+        "
       >
+        <!-- no-funcクラスがついている部分はクリックしてもモーダルが消えない -->
+
+        <!-- フォローしているユーザーを表示する場合 -->
         <slot
           name="favoriteUsers"
           v-if="showWindow.slotName === 'favoriteUsers'"
           class="no-func"
         ></slot>
+        <!-- フォロワーを表示する場合 -->
         <slot
           name="followers"
           v-if="showWindow.slotName === 'followers'"
           class="no-func"
         ></slot>
+        <!-- アプリ概要を表示する場合 -->
         <slot
           name="appOverview"
           v-if="showWindow.slotName === 'appOverview'"
@@ -33,7 +44,9 @@ export default {
   props: ["showWindow"],
   methods: {
     removeModalWindow(e) {
+      // .no-funcクラスが付いた場所以外の場所をクリックしたとき
       if (!e.target.closest(".no-func")) {
+        // モーダルを非表示にする
         this.$emit("removeWindow");
       }
     },
