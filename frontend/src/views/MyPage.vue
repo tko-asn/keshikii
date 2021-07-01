@@ -127,9 +127,18 @@ export default {
     const searchRouteIndex = this.routeName.indexOf(this.$route.name);
     // URLに応じてisActiveの値を変える
     this.isActive = searchRouteIndex;
+
     // ログインユーザーの情報を取得
     api.get("/auth/users/me/").then((response) => {
       this.user = response.data;
+    });
+
+    // ログインユーザーの投稿を取得
+    // この時点でユーザーの投稿をvuexに保存し
+    // 子コンポーネントで投稿を参照するときはvuexから参照させる
+    api.get("/users_post/").then((response) => {
+      // ページネーションのデータを保存
+      this.$store.dispatch("pagination/setPagination", response.data);
     });
   },
   computed: {

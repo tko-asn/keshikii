@@ -5,7 +5,7 @@
         <!-- 投稿数 -->
         <div class="tile is-parent">
           <article class="tile is-child box click-cursor" @click="moveTab(1)">
-            <p class="title">{{ myPostsCount }}</p>
+            <p class="title">{{ count }}</p>
             <p class="subtitle">投稿数</p>
           </article>
         </div>
@@ -60,15 +60,10 @@ export default {
   data() {
     return {
       numberOfFollowers: 0,
-      myPostsCount: 0,
       myFollowers: [],
     };
   },
   mounted() {
-    // 投稿数を保存
-    api.get("/users_post/").then((response) => {
-      this.myPostsCount = response.data.count;
-    });
     // ログインユーザーのフォロワー取得
     api
       .get("/following/", { params: { followers: "True" } })
@@ -82,7 +77,9 @@ export default {
       });
   },
   computed: {
+    // フォローしているユーザーのリスト
     ...mapGetters("auth", ["favoriteUsersList"]),
+    ...mapGetters("pagination", ["count"]), // 投稿数
     numberOfFavoritePosts() {
       if (this.user.favorite_posts) {
         return this.user.favorite_posts.length;

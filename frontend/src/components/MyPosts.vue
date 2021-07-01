@@ -1,18 +1,16 @@
 <template>
-  <div v-if="myPosts.length">
+  <div v-if="count">
     <!-- 投稿一覧 -->
-    <PostsList :posts="myPosts"></PostsList>
+    <PostsList :posts="results"></PostsList>
 
     <!-- ページネーション -->
-    <Pagination @paginate="setMyPosts($event)" class="mt-5"></Pagination>
+    <Pagination class="mt-5"></Pagination>
   </div>
-  <div v-else>
-    {{ noPosts }}
-  </div>
+  <div v-else>投稿がありません。</div>
 </template>
 
 <script>
-import api from "@/api";
+import { mapGetters } from "vuex";
 import Pagination from "@/components/Pagination";
 import PostsList from "@/components/PostsList";
 
@@ -21,28 +19,9 @@ export default {
     Pagination,
     PostsList,
   },
-  data() {
-    return {
-      myPosts: [],
-      noPosts: "",
-    };
-  },
-  mounted() {
-    // ログインユーザーの投稿を取得
-    api.get("/users_post/").then((response) => {
-      if (response.data.results.length) {
-        this.myPosts = response.data.results;
-        this.$store.dispatch("pagination/setPagination", response.data);
-      } else {
-        this.noPosts = "投稿はありません。";
-      }
-    });
-  },
-  methods: {
-    // ページ移動した際にPaginationコンポーネントから投稿の配列を取得
-    setMyPosts(posts) {
-      this.myPosts = posts;
-    },
+  computed: {
+    // 投稿数と投稿リスト
+    ...mapGetters("pagination", ["count", "results"]),
   },
 };
 </script>
