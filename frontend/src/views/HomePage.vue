@@ -111,6 +111,7 @@ export default {
     };
   },
   computed: {
+    // 投稿のリストと投稿数
     ...mapGetters("pagination", ["results", "count"]),
   },
   mounted() {

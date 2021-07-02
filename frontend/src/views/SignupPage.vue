@@ -96,6 +96,8 @@ export default {
         this.messages.push("確認用パスワードが違います。");
         return;
       }
+
+      // サインアップ
       this.$store
         .dispatch("auth/register", {
           username: this.newUser.username,
@@ -103,6 +105,7 @@ export default {
           re_password: this.newUser.confirmationPassword,
         })
         .then(() => {
+          // サインアップ成功ならログイン
           this.$store
             .dispatch("auth/login", {
               username: this.newUser.username,
