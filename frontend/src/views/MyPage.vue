@@ -8,7 +8,7 @@
       <!-- フォローしているユーザーを表示するモーダルの場合 -->
       <template v-slot:favoriteUsers>
         <ViewFavoriteUsers
-          :username="user.username"
+          :username="userProfile.username"
           @removeModalInViewFavoriteUsers="removeModalWindowInMyPage"
         ></ViewFavoriteUsers>
       </template>
@@ -17,7 +17,7 @@
       <template v-slot:followers>
         <ViewFollowers
           :followers="followers"
-          :username="user.username"
+          :username="userProfile.username"
           @removeModalInViewFollowers="removeModalWindowInMyPage"
         ></ViewFollowers>
       </template>
@@ -31,7 +31,7 @@
 
     <!-- ユーザアイコン, ユーザー名, プロフィール編集ボタンを表示する部分 -->
     <div id="mypage-container" class="container">
-      <UserProfileArea :user="user"></UserProfileArea>
+      <UserProfileArea :user="userProfile"></UserProfileArea>
     </div>
 
     <!-- タブメニュー -->
@@ -42,7 +42,7 @@
       <keep-alive>
         <MyProfile
           v-show="isMyPageRoute"
-          :user="user"
+          :user="userProfile"
           @showFollowers="showFollowersInMyPage($event)"
           @showFavoriteUsers="showFavoriteUsersInMyPage"
           @moveTabInMyPage="goToAnotherTab($event)"
@@ -59,6 +59,7 @@
 
 <script>
 import api from "@/api";
+import { mapGetters } from "vuex";
 import GlobalMenu from "@/components/GlobalMenu";
 import MyProfile from "@/components/MyProfile";
 import ModalWindow from "@/components/ModalWindow";
@@ -73,7 +74,6 @@ export default {
     return {
       routeName: ["mypage", "myPosts", "favoritePosts"],
       tabName: ["プロフィール", "自分の投稿", "お気に入りの投稿"],
-      user: {},
       favoriteUsers: [],
       followers: [],
       modalInfo: {
@@ -128,11 +128,6 @@ export default {
     // URLに応じてisActiveの値を変える
     this.isActive = searchRouteIndex;
 
-    // ログインユーザーの情報を取得
-    api.get("/auth/users/me/").then((response) => {
-      this.user = response.data;
-    });
-
     // ログインユーザーの投稿を取得
     // この時点でユーザーの投稿をvuexに保存し
     // 子コンポーネントで投稿を参照するときはvuexから参照させる
@@ -148,6 +143,8 @@ export default {
     isMyPageRoute() {
       return this.$route.name === "mypage";
     },
+    // ログインユーザーの情報
+    ...mapGetters("auth", ["userProfile"]),
   },
   // メッセージの表示が必要な場合は
   // dataのmessagesに値を保存して

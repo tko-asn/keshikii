@@ -63,7 +63,7 @@ export default {
           // マイページへ
           this.$router.push("/mypage");
         }
-        // クリックされたユーザーが現在表示されているユーザーとは別のユーザー場合
+        // クリックされたユーザーが現在表示されているユーザーとは別のユーザーの場合
       } else if (this.username !== username) {
         this.$router.push({ name: "viewUser", params: { username: username } });
         // クリックされたユーザーと現在表示されているユーザーが同じ場合

@@ -1,7 +1,12 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
+    <!-- プロフィール編集フォーム -->
     <div id="edit-profile-container" class="container mt-6">
       <div class="columns is-centered is-vcentered">
         <form
@@ -10,6 +15,7 @@
           @submit.prevent="clickEditProfile"
         >
           <div class="form-container">
+            <!-- アイコン編集フォーム -->
             <div class="field mt-4">
               <div class="icon-box">
                 <img :src="iconSrc" alt="icon" />
@@ -23,15 +29,21 @@
                   name="resume"
                   @change="onIconChange"
                 />
+
+                <!-- アイコンファイル選択ボタン -->
                 <span class="file-cta" id="image-select">
                   <span class="file-icon">
                     <fa-icon icon="file-upload"></fa-icon>
                   </span>
                   <span id="select-icon" class="file-label"> 画像 </span>
                 </span>
+
+                <!-- ファイル名表示部分 -->
                 <span class="file-name">{{ this.iconFileName }}</span>
               </label>
             </div>
+
+            <!-- ユーザー名編集フォーム -->
             <div class="field mt-4">
               <label class="label">ユーザー名</label>
               <div class="control">
@@ -43,6 +55,8 @@
                 />
               </div>
             </div>
+
+            <!-- 自己紹介編集フォーム -->
             <div class="field">
               <label class="label">自己紹介</label>
               <div class="control">
@@ -53,10 +67,14 @@
                 ></textarea>
               </div>
             </div>
+
+            <!-- バリデーションメッセージ -->
             <ValidationMessage
               :messages="messages"
               class="mb-2"
             ></ValidationMessage>
+
+            <!-- プロフィール編集ボタン -->
             <button
               id="profile-button"
               class="button is-primary is-fullwidth"
@@ -95,28 +113,30 @@ export default {
     };
   },
   mounted() {
-    // ユーザーのデータを保存
-    api.get("/auth/users/me/").then((response) => {
-      this.user = response.data;
-    });
+    // ユーザーのデータをvuexから参照し保存
+    this.user = this.$store.getters["auth/userProfile"];
   },
   computed: {
     iconSrc() {
+      // アイコンに変更がない場合
       if (!this.newIconSrc) {
         return this.user.icon_url;
-      } else {
-        return this.newIconSrc;
       }
+      // アイコンが変更された場合
+      return this.newIconSrc;
     },
     iconFileName() {
+      // アイコンに変更がない場合
       if (!this.iconFileNameInData) {
+        // デフォルトのアイコンの場合
         if (this.user.icon_filename === "default_user_icon.jpeg") {
           return "デフォルト";
         }
+        // アイコンがデフォルトでない場合
         return this.user.icon_filename;
-      } else {
-        return this.iconFileNameInData;
       }
+      // アイコンが変更された場合
+      return this.iconFileNameInData;
     },
   },
   methods: {
@@ -179,11 +199,17 @@ export default {
       if (this.newIcon) {
         params.append("icon", this.newIcon, this.iconFileNameInData);
       }
+
       // データベースに変更内容を反映
       api
         .patch("/auth/users/me/", params)
         // 成功したらマイページへ移動
-        .then(() => {
+        .then((response) => {
+          // vuexのauth.jsのユーザー情報を書き換える
+          // ここで変更しないと次にreloadが行われるまでstateの値が書き変わらない
+          this.$store.dispatch("auth/editUserProfile", response.data);
+
+          // MyPageへ
           this.$router.replace({
             name: "mypage",
             params: { before: "editProfile" },
