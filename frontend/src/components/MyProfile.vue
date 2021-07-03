@@ -24,7 +24,7 @@
         <!-- お気に入りの投稿 -->
         <div class="tile is-parent">
           <article class="tile is-child box click-cursor" @click="moveTab(2)">
-            <p class="title">{{ numberOfFavoritePosts }}</p>
+            <p class="title">{{ favoritePostsIdList.length }}</p>
             <p class="subtitle">お気に入り</p>
           </article>
         </div>
@@ -78,15 +78,8 @@ export default {
   },
   computed: {
     // フォローしているユーザーのリスト
-    ...mapGetters("auth", ["favoriteUsersList"]),
+    ...mapGetters("auth", ["favoriteUsersList", "favoritePostsIdList"]),
     ...mapGetters("pagination", ["count"]), // 投稿数
-    numberOfFavoritePosts() {
-      // お気に入りの投稿数
-      if (this.user.favorite_posts) {
-        return this.user.favorite_posts.length;
-      }
-      return 0;
-    },
   },
   methods: {
     // フォロワーボタンをクリックされたとき
