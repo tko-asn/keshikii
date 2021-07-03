@@ -133,7 +133,7 @@ export default {
     // 子コンポーネントで投稿を参照するときはvuexから参照させる
     api.get("/users_post/").then((response) => {
       // ページネーションのデータを保存
-      this.$store.dispatch("pagination/setPagination", response.data);
+      this.$store.commit("pagination/set", response.data);
     });
   },
   computed: {

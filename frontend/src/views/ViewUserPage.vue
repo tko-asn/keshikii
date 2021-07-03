@@ -167,8 +167,8 @@ export default {
           .then((postResponse) => {
             if (postResponse.data.results.length) {
               // ページネーションの状態をセット
-              this.$store.dispatch(
-                "pagination/setPagination",
+              this.$store.commit(
+                "pagination/set",
                 postResponse.data
               );
             } else {
