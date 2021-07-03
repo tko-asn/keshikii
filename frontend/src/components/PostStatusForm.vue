@@ -1,4 +1,5 @@
 <template>
+  <!-- 公開設定 -->
   <div class="field mt-5 vertical-align">
     <div class="control">
       <label class="radio">
@@ -38,12 +39,13 @@ export default {
     };
   },
   methods: {
+    // 選択した公開設定のデータを送信
     clickRadioButton() {
       this.$emit("changeRadio", this.status);
     },
   },
   watch: {
-    // originに値が与えられていて、
+    // originに値が与えられていて
     // statusへの代入が一回目なら代入を実行
     origin(val) {
       if (val) {

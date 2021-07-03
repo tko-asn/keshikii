@@ -159,6 +159,8 @@ export default {
     },
   },
   mounted() {
+    // ページ数がDOMのid
+    // デフォルトでは1ページ目にis-currentクラスを付与
     document.getElementById(1).classList.add("is-current");
   },
   computed: {
@@ -216,32 +218,41 @@ export default {
       // クエリパラメータは文字列で指定する
       // query: {} 形式ではない
       let true_url = url;
+
+      // 検索キーワードと検索カテゴリ・検索都道府県の両方を指定するのは
+      // フィルタの仕様上不可
+      // 検索キーワードがある場合
       if (this.searchKeyword) {
         const keywordQuery =
           "?keyword=" + this.searchKeyword + "&page=" + pageNumber;
         true_url += keywordQuery;
-      } else {
-        if (this.searchCategorys.length) {
-          let categoryQuery = "";
-          const firstCategory = this.searchCategorys[0];
-          for (const category of this.searchCategorys) {
-            if (category === firstCategory) {
-              categoryQuery += "?categorys=" + category;
-            } else {
-              categoryQuery += "&categorys=" + category;
-            }
+        // 検索カテゴリが設定されている場合
+      } else if (this.searchCategorys.length) {
+        const firstCategory = this.searchCategorys[0];
+        for (const category of this.searchCategorys) {
+          if (category === firstCategory) {
+            true_url += "?categorys=" + category;
+          } else {
+            true_url += "&categorys=" + category;
           }
-          true_url += categoryQuery + "&page=" + pageNumber;
-        } else {
-          true_url += "?page=" + pageNumber;
         }
+        true_url += "&page=" + pageNumber;
+        // 検索キーワードも検索カテゴリも設定されていない場合
+      } else {
+        true_url += "?page=" + pageNumber;
       }
+
+      // 検索都道府県が設定されている場合
       if (this.searchPrefecture) {
         true_url += "&prefecture=" + this.searchPrefecture;
       }
+
+      // 現在のページがViewUserPageの場合
       if (this.$route.name === "viewUser") {
         true_url += "&user_id=" + this.id;
       }
+
+      // APIへリクエストを実行
       axios.get(true_url).then((response) => {
         this.$emit("paginate", response.data.results);
         // vuexのページネーションの状態を更新

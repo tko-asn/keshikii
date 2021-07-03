@@ -1,6 +1,9 @@
 <template>
   <div class="panel">
+    <!-- モーダルウィンドウのラベル -->
     <p class="panel-heading">フォロワー</p>
+
+    <!-- フォロワー一覧 -->
     <div class="scroll-block">
       <a
         v-for="follower in followers"
@@ -8,11 +11,14 @@
         class="panel-block columns is-marginless"
         @click="goToUsersPage(follower.username)"
       >
+        <!-- フォロワーのアイコン -->
         <div class="column is-3-desktop is-4-tablet is-5-mobile">
           <div class="icon-box">
             <img :src="follower.icon_url" alt="icon" />
           </div>
         </div>
+
+        <!-- フォロワー名 -->
         <div class="column username hidden">
           <h3>{{ follower.username }}</h3>
         </div>

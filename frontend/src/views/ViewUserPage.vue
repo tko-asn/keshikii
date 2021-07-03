@@ -1,6 +1,8 @@
 <template>
   <div>
+    <!-- モーダル -->
     <ModalWindow :showWindow="modalInfo" @removeWindow="removeModalWindow">
+      <!-- フォローしているユーザー -->
       <template v-slot:favoriteUsers>
         <ViewFavoriteUsers
           :username="username"
@@ -8,6 +10,8 @@
           @removeModalInViewFavoriteUsers="removeModalWindow"
         ></ViewFavoriteUsers>
       </template>
+
+      <!-- フォロワー -->
       <template v-slot:followers>
         <ViewFollowers
           :followers="followers"
@@ -16,13 +20,21 @@
         ></ViewFollowers>
       </template>
     </ModalWindow>
+
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
     <div id="view-user-container">
       <div class="container">
+        <!-- ユーザーアイコン・ユーザー名・フォローボタン -->
         <UserProfileArea :user="user"></UserProfileArea>
+
         <section class="info-tiles mb-5">
           <div class="tile is-ancestor has-text-centered">
+            <!-- 投稿数タイル -->
             <div class="tile is-parent">
               <article
                 class="tile is-child box click-cursor"
@@ -32,6 +44,8 @@
                 <p class="subtitle">投稿数</p>
               </article>
             </div>
+
+            <!-- フォロワータイル -->
             <div class="tile is-parent">
               <article
                 class="tile is-child box click-cursor"
@@ -41,6 +55,8 @@
                 <p class="subtitle">フォロワ―</p>
               </article>
             </div>
+
+            <!-- フォロータイル -->
             <div class="tile is-parent">
               <article
                 class="tile is-child box click-cursor"
@@ -52,18 +68,27 @@
             </div>
           </div>
         </section>
+
+        <!-- タブメニュー -->
         <TabMenu
           :tabNameList="tabNameInViewUserPage"
           :option="optionNumber"
           @returnTabIndex="switchElement($event)"
           @resetOption="resetOptionNumber"
         ></TabMenu>
+
+        <!-- ユーザー概要 -->
         <UserOverview :user="user" v-show="elementNumber === 0"></UserOverview>
+
+        <!-- 投稿一覧 -->
         <div v-show="elementNumber === 1">
+          <!-- 投稿が存在する場合 -->
           <template v-if="count">
             <PostsList :posts="results"></PostsList>
             <Pagination :id="user.id" class="mt-5"></Pagination>
           </template>
+
+          <!-- 投稿が存在しない場合 -->
           <template v-else>
             {{ noPosts }}
           </template>
@@ -201,13 +226,19 @@ export default {
     },
   },
   beforeRouteEnter(to, from, next) {
-    // ViewUserPageの表示内容が自分の場合はmypageへ飛ばす。
     const loginUsername = store.getters["auth/username"];
+    // ViewUserPageの表示内容が自分の場合はmypageへ飛ばす
     if (to.params.username === loginUsername) {
       next("/mypage");
     } else {
       next();
     }
+  },
+  destroyed() {
+    // paginationの情報を初期化
+    // この処理を行わないと別ページで投稿リストを表示するときに
+    // 数秒間古い投稿リストのデータが描画されてしまう
+    this.$store.dispatch("pagination/clearPagination");
   },
 };
 </script>

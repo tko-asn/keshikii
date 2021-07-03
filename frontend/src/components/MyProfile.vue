@@ -81,6 +81,7 @@ export default {
     ...mapGetters("auth", ["favoriteUsersList"]),
     ...mapGetters("pagination", ["count"]), // 投稿数
     numberOfFavoritePosts() {
+      // お気に入りの投稿数
       if (this.user.favorite_posts) {
         return this.user.favorite_posts.length;
       }

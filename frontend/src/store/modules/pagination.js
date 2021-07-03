@@ -38,6 +38,15 @@ const mutations = {
 		state.pageSize = payload.page_size;
 		state.results = payload.results; // 投稿リストを保存
 	},
+	clear(state) {
+		state.next = '';
+		state.previous = '';
+		state.count = 0;
+		state.totalPages = 0;
+		state.currentPage = 0;
+		state.pageSize = 0;
+		state.results = [];
+	},
 	setSearchKeyword(state, payload) {
 		state.searchKeyword = payload.searchKeyword;
 	},
@@ -61,6 +70,9 @@ const mutations = {
 const actions = {
 	setPagination({ commit }, payload) {
 		commit('set', payload);
+	},
+	clearPagination({ commit }) {
+		commit('clear');
 	},
 	registerSearchKeyword({ commit }, payload) {
 		commit('setSearchKeyword', { searchKeyword: payload });

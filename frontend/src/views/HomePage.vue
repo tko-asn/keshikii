@@ -38,45 +38,44 @@
         </div>
       </div>
 
-      <!-- 投稿が存在する場合 -->
-      <div v-if="count">
-        <!-- フィルタ -->
-        <div class="pb-5">
-          <!-- フィルタ表示切り替えボタン -->
-          <div id="category-menu" class="pb-3">
-            <a @click="switchFilter" v-show="!filtering"
-              ><fa-icon icon="filter"></fa-icon> フィルタ</a
-            >
-            <a @click="switchFilter" v-show="filtering"
-              ><fa-icon icon="times"></fa-icon> 閉じる</a
-            >
-          </div>
-          <!-- フィルタ部分（タブレット用） -->
-          <CategoryFilter
-            id="tablet-category-filter"
-            class="p-4"
-            v-show="filtering"
-          ></CategoryFilter>
+      <!-- フィルタ -->
+      <div class="pb-5">
+        <!-- フィルタ表示切り替えボタン -->
+        <div id="category-menu" class="pb-3">
+          <a @click="switchFilter" v-show="!filtering"
+            ><fa-icon icon="filter"></fa-icon> フィルタ</a
+          >
+          <a @click="switchFilter" v-show="filtering"
+            ><fa-icon icon="times"></fa-icon> 閉じる</a
+          >
         </div>
-
-        <div class="columns posts-container is-marginless">
-          <!-- 投稿表示部分 -->
-          <div class="column">
-            <PostsList :posts="results"></PostsList>
-            <Pagination class="mt-6"></Pagination>
-          </div>
-          <!-- フィルタ部分（デスクトップ用） -->
-          <CategoryFilter
-            id="pc-category-filter"
-            class="column is-3 ml-5"
-            v-show="filtering"
-          ></CategoryFilter>
-        </div>
+        <!-- フィルタ部分（タブレット用） -->
+        <CategoryFilter
+          id="tablet-category-filter"
+          class="p-4"
+          v-show="filtering"
+        ></CategoryFilter>
       </div>
 
-      <!-- 投稿が一件もないとき -->
-      <div class="mt-6 columns has-text-centered" v-else>
-        <h3 class="column a6-font-color">{{ noPosts }}</h3>
+      <div class="columns posts-container is-marginless">
+        <!-- 投稿表示部分 -->
+        <!-- 投稿が存在する場合 -->
+        <div class="column" v-if="count">
+          <PostsList :posts="results"></PostsList>
+          <Pagination class="mt-6"></Pagination>
+        </div>
+
+        <!-- 投稿が一件もない場合 -->
+        <div class="column has-text-centered" v-else>
+          <h3 class="a6-font-color">{{ noPosts }}</h3>
+        </div>
+
+        <!-- フィルタ部分（デスクトップ用） -->
+        <CategoryFilter
+          id="pc-category-filter"
+          class="column is-3 ml-5"
+          v-show="filtering"
+        ></CategoryFilter>
       </div>
     </div>
   </div>
@@ -112,15 +111,19 @@ export default {
   },
   computed: {
     // 投稿のリストと投稿数
-    ...mapGetters("pagination", ["results", "count"]),
+    ...mapGetters("pagination", [
+      "results",
+      "count",
+      "searchCategorys",
+      "searchPrefecture",
+    ]),
   },
   mounted() {
     publicApi.get("/posts/").then((response) => {
-      // 投稿が存在するとき
-      if (response.data.results.length) {
-        this.$store.dispatch("pagination/setPagination", response.data);
-      } else {
-        // 投稿が空のとき
+      // vuexに投稿の情報を設定
+      this.$store.dispatch("pagination/setPagination", response.data);
+      // 投稿が空のとき
+      if (!response.data.results.length) {
         this.noPosts = "投稿はありません。";
       }
     });
@@ -188,6 +191,24 @@ export default {
   destroyed() {
     // vuexの検索ワードの値を初期化
     this.$store.dispatch("pagination/destroySearchKeyword");
+    // paginationの情報を初期化
+    // この処理を行わないと別ページで投稿リストを表示するときに
+    // 数秒間古い投稿リストのデータが描画されてしまう
+    this.$store.dispatch("pagination/clearPagination");
+  },
+  watch: {
+    // フィルタから検索して該当する投稿がないとき
+    // noPostsにメッセージを設定する
+    count(val) {
+      const search =
+        this.searchCategorys.length || this.searchPrefecture.length;
+      // countが0かつsearchCategorysかsearchPrefectureのどちらかがtrueの場合
+      // この条件でページ描画時に投稿が一件もなかったときに
+      // noPostsに「投稿が見つかりませんでした。」のメッセージが代入されるのを防ぐ
+      if (val === 0 && search) {
+        this.noPosts = "投稿が見つかりませんでした。";
+      }
+    },
   },
 };
 </script>
