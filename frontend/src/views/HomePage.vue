@@ -135,21 +135,20 @@ export default {
     },
     // キーワード検索
     clickForSearch() {
+      // 現在の検索キーワードをvuexに保存
+      this.$store.dispatch(
+        "pagination/registerSearchKeyword",
+        this.searchKeyword
+      );
+      
       publicApi
         .get("/posts/", { params: { keyword: this.searchKeyword } })
         .then((response) => {
-          this.posts = response.data.results;
-          // 投稿が存在する場合
-          if (this.posts.length) {
-            // レスポンスからvuexのページネーションの情報を更新
-            this.$store.dispatch("pagination/setPagination", response.data);
-            // 現在の検索キーワードをvuexに保存
-            this.$store.dispatch(
-              "pagination/registerSearchKeyword",
-              this.searchKeyword
-            );
-            // 投稿が存在しない場合
-          } else {
+          // レスポンスからvuexのページネーションの情報を更新
+          this.$store.dispatch("pagination/setPagination", response.data);
+
+          // 投稿が存在しない場合
+          if (!response.data.count) {
             this.noPosts = "投稿が見つかりませんでした。";
           }
         });
