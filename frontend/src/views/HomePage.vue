@@ -205,10 +205,21 @@ export default {
     // vuexの検索ワードの値を初期化
     this.$store.dispatch("pagination/destroySearchKeyword");
 
+    // 初期化用データ
+    const clearData = {
+      next: "",
+      previous: "",
+      count: 0,
+      total_pages: 0,
+      current_page: 0,
+      page_size: 0,
+      results: [],
+    };
+
     // paginationの情報を初期化
     // この処理を行わないと別ページで投稿リストを表示するときに
     // 数秒間古い投稿リストのデータが描画されてしまう
-    this.$store.commit("pagination/clear");
+    this.$store.commit("pagination/set", clearData);
     next();
   },
 };
