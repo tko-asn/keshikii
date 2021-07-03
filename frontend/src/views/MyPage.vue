@@ -158,6 +158,12 @@ export default {
       next();
     }
   },
+  destroyed() {
+    // paginationの情報を初期化
+    // この処理を行わないと別ページで投稿リストを表示するときに
+    // 数秒間古い投稿リストのデータが描画されてしまう
+    this.$store.dispatch("pagination/clearPagination");
+  },
 };
 </script>
 

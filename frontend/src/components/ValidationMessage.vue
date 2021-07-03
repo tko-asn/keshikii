@@ -1,4 +1,5 @@
 <template>
+  <!-- バリデーションメッセージ -->
   <div v-show="messages.length">
     <p class="help" v-for="message in messages" :key="message">
       {{ message }}

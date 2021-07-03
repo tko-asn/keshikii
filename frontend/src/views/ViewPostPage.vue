@@ -1,16 +1,26 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message :info="messages.informations"></Message>
+
     <div id="view-post-container" class="hero-body">
       <div class="container">
         <div class="columns is-vcentered has-text-centered is-marginless">
+          <!-- 投稿画像 -->
           <div class="column">
             <img class="post-image" :src="post.picture_url" :alt="post.title" />
           </div>
           <div class="column">
+            <!-- タイトル -->
             <p class="title">{{ post.title }}</p>
+
+            <!-- ユーザー名 -->
             <p>posted by {{ returnAuthor.username }}</p>
+
+            <!-- お気に入りボタン -->
             <div id="favorite-button-container">
               <div>
                 <a
@@ -26,7 +36,9 @@
                   >お気に入り解除</a
                 >
               </div>
+
               <div class="mt-4">
+                <!-- 投稿編集ボタン -->
                 <template v-if="isYourPost">
                   <a
                     class="button is-primary is-medium"
@@ -35,6 +47,8 @@
                     >投稿を編集</a
                   >
                 </template>
+
+                <!-- ユーザーフォローボタン -->
                 <template v-else>
                   <UserFollowButton
                     :userId="returnAuthor.id"
@@ -46,6 +60,8 @@
             </div>
           </div>
         </div>
+
+        <!-- 投稿概要欄 -->
         <div
           class="
             columns
@@ -56,15 +72,19 @@
             is-marginless
           "
         >
+          <!-- 投稿者 -->
           <div class="column is-paddingless mt-2 min-height">
             <h6 class="mb-2 title-h6">投稿者</h6>
             <div class="display-flex">
+              <!-- アイコン -->
               <div
                 class="icon-box mr-3 click-cursor"
                 @click="moveUserPage(returnAuthor.username)"
               >
                 <img :src="returnAuthor.icon_url" />
               </div>
+
+              <!-- ユーザー名 -->
               <div
                 class="click-cursor"
                 @click="moveUserPage(returnAuthor.username)"
@@ -73,15 +93,21 @@
               </div>
             </div>
           </div>
+
+          <!-- 投稿日 -->
           <div class="column is-paddingless mt-2">
             <h6 class="mb-2 title-h6">投稿日</h6>
             <p>{{ post.posted_date }}</p>
           </div>
         </div>
+
+        <!-- 説明文 -->
         <div class="min-height mb-4">
           <h6 class="mb-2 title-h6">説明</h6>
           <p>{{ post.text }}</p>
         </div>
+
+        <!-- カテゴリー -->
         <div class="min-height mb-4">
           <h6 class="mb-2 title-h6">カテゴリー</h6>
           <span
@@ -92,6 +118,8 @@
             {{ category }}
           </span>
         </div>
+
+        <!-- 写真撮影場所 -->
         <div class="min-height mb-4">
           <h6 class="mb-2 title-h6">写真撮影場所</h6>
           <p>{{ post.zip_code }}</p>
@@ -185,6 +213,7 @@ export default {
         const favoritePostsIdList =
           this.$store.getters["auth/favoritePostsIdList"].slice(); // リストをコピー
         favoritePostsIdList.push(this.id); // コピーしたリストに表示中の投稿のIDを追加
+
         // データベースの情報を更新
         api
           .patch("/auth/users/me/", { favorite_posts: favoritePostsIdList })

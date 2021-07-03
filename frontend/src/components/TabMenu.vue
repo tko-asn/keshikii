@@ -1,12 +1,14 @@
 <template>
   <div class="tabs is-centered">
     <ul>
+      <!-- タブ -->
       <li
         :class="{ 'is-active': index === isActive }"
         @click="switchIsActive(index)"
         v-for="(tab, index) in tabNameList"
         :key="tab"
       >
+        <!-- タブ名 -->
         <a>
           {{ tab }}
         </a>
@@ -44,7 +46,8 @@ export default {
           this.$router.replace({ name: newRouteName });
         }
       } else {
-        // タブをクリックしてもページ遷移を行わず表示内容を条件分岐で切り替える場合
+        // タブをクリックしてもページ遷移を行わず表示内容を
+        // 条件分岐で切り替える場合
         this.$emit("returnTabIndex", tabIndex);
         this.active = tabIndex;
       }
@@ -56,14 +59,16 @@ export default {
       if (this.routesList.length) {
         return this.routesList.indexOf(this.$route.name);
       } else {
-        // タブをクリックしてもページ遷移を行わず表示内容を条件分岐で切り替える場合
+        // タブをクリックしてもページ遷移を行わず表示内容を
+        // 条件分岐で切り替える場合
         return this.active;
       }
     },
   },
   watch: {
     option() {
-      // ページ遷移しないタブ移動で親からもタブを移動させたいときpropsのoptionからactiveの値を変換。
+      // ページ遷移しないタブ移動で親からもタブを移動させたいとき
+      // propsのoptionからactiveの値を変換
       if (this.option) {
         this.active = this.option;
         this.$emit("resetOption");

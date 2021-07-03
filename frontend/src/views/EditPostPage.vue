@@ -1,7 +1,12 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
+    <!-- 投稿編集フォーム -->
     <div id="edit-container" class="container mt-6 mb-6">
       <div class="columns is-centered">
         <form
@@ -11,14 +16,19 @@
           class="box column is-5-desktop is-6-tablet is-8-mobile"
         >
           <div id="form-container">
+            <!-- フォームラベル -->
             <div class="content mt-6">
               <h1 class="has-text-centered">Edit Form</h1>
             </div>
+
+            <!-- 投稿画像フォーム -->
             <PostImageForm
               @changeImage="setImageFile"
               :defaultSrc="post.picture_url"
               :defaultFileName="post.picture_filename"
             ></PostImageForm>
+
+            <!-- タイトルフォーム -->
             <div class="field mt-5">
               <div class="control pt-3">
                 <input
@@ -29,6 +39,8 @@
                 />
               </div>
             </div>
+
+            <!-- 説明文フォーム -->
             <div class="field mt-5">
               <div class="control pt-3">
                 <textarea
@@ -38,11 +50,15 @@
                 ></textarea>
               </div>
             </div>
+
+            <!-- カテゴリフォーム -->
             <PostCategoryForm
               @changeSelectedCategorys="setCategorys($event)"
               @clearDefaultCategorys="clearDefaultCategorysList"
               :defaultCategorys="defaultCategorysList"
             ></PostCategoryForm>
+
+            <!-- 地名・住所フォーム -->
             <PostLocationForm
               @send-zip="saveZipInEdit($event)"
               @send-prefecture="savePrefectureInEdit($event)"
@@ -51,11 +67,17 @@
               :postPrefecture="post.prefecture"
               :postLocation="post.location"
             ></PostLocationForm>
+
+            <!-- 公開設定フォーム -->
             <PostStatusForm
               @changeRadio="setStatus($event)"
               :origin="post.status"
             ></PostStatusForm>
+
+            <!-- バリデーションメッセージ -->
             <ValidationMessage :messages="messages"></ValidationMessage>
+
+            <!-- 投稿編集ボタン -->
             <div class="field is-grouped mt-5 mb-2">
               <button
                 class="button button-border is-primary is-fullwidth"
@@ -66,8 +88,13 @@
               </button>
             </div>
             <hr />
+
+            <!-- 投稿削除フォーム -->
             <div class="field mt-5">
+              <!-- フォームラベル -->
               <label class="label">投稿を削除</label>
+
+              <!-- 削除確認 -->
               <div class="control">
                 <p class="help">
                   投稿を削除する場合は「削除」と入力してください。
@@ -80,6 +107,8 @@
                 />
               </div>
             </div>
+
+            <!-- 投稿削除ボタン -->
             <div class="field is-grouped mt-5 mb-2">
               <button
                 class="button is-danger is-fullwidth button-border"
@@ -122,6 +151,7 @@ export default {
     };
   },
   computed: {
+    // 削除確認
     isInput() {
       return this.deleteText === "削除";
     },
@@ -137,6 +167,7 @@ export default {
   },
   props: ["id"],
   mounted() {
+    // 編集対象の投稿を取得
     api
       .get("/users_post/" + this.id + "/")
       .then((response) => {
@@ -144,7 +175,9 @@ export default {
         this.defaultCategorysList = response.data.category;
       })
       .catch((error) => {
+        // 認証エラー発生時
         if (error.response.status === 401) {
+          // ホームへ
           this.$router.push("/");
         }
       });
@@ -169,17 +202,22 @@ export default {
       this.disabled = true;
       // メッセージの初期化
       this.messages = [];
+
       // 入力必須項目が空の場合のメッセージ
       if (!this.post.title) {
         this.messages.push("タイトルは必須項目です。");
         this.disabled = false;
         return;
       }
+
+      // 送信データ作成
       const params = new FormData();
       // 元の投稿データから画像関連の属性を削除
       delete this.post.picture_url;
       delete this.post.picture_filename;
+
       Object.entries(this.post).forEach(([key, value]) => {
+        // categoryはManyToManyField
         if (key === "category") {
           value.forEach((value) => {
             params.append("category", value);
@@ -188,20 +226,27 @@ export default {
           params.append(key, value);
         }
       });
+
       // 画像に変更があった場合
       if (this.newPicture) {
         params.append("picture", this.newPicture, this.newFileName);
       }
+
+      // 地名・住所を設定
       params.append("zip_code", this.zipCodeInEditForm);
       params.append("prefecture", this.prefectureDataInEditForm);
       params.append("location", this.locationDataInEditForm);
+
+      // 投稿を編集
       api
         .patch("/users_post/" + this.id + "/", params)
         .then(() => {
+          // 公開設定を非公開に編集した場合
           if (this.post.status === "private") {
-            // 公開設定を非公開に編集した場合はhomeへ遷移
+            // homeへ遷移
             this.$router.replace({ name: "home" });
           } else {
+            // 投稿詳細画面へ
             this.$router.replace({
               name: "viewPost",
               params: { id: this.id, before: "editPost" },
@@ -214,9 +259,11 @@ export default {
     },
     deletePost() {
       this.disabled = true;
+      // 投稿を削除
       api
         .delete("/users_post/" + this.id + "/")
         .then(() => {
+          // ホームへ
           this.$router.replace({
             name: "home",
             params: { before: "deletePost" },

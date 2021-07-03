@@ -1,7 +1,12 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
+    <!-- 投稿フォーム -->
     <div id="post-container" class="container mt-6 mb-6">
       <div class="columns is-centered">
         <form
@@ -10,10 +15,15 @@
           class="box column is-5-desktop is-6-tablet is-8-mobile"
         >
           <div id="form-container">
+            <!-- フォームラベル -->
             <div class="content mt-6">
               <h1 class="has-text-centered">Post Form</h1>
             </div>
+
+            <!-- 投稿画像フォーム -->
             <PostImageForm @changeImage="setImageFile"></PostImageForm>
+
+            <!-- タイトルフォーム -->
             <div class="field mt-5">
               <div class="control pt-3">
                 <input
@@ -24,6 +34,8 @@
                 />
               </div>
             </div>
+
+            <!-- 説明文フォーム -->
             <div class="field mt-5">
               <div class="control pt-3">
                 <textarea
@@ -33,16 +45,26 @@
                 ></textarea>
               </div>
             </div>
+
+            <!-- カテゴリフォーム -->
             <PostCategoryForm
               @changeSelectedCategorys="setCategorys($event)"
             ></PostCategoryForm>
+
+            <!-- 地名・住所フォーム -->
             <PostLocationForm
               @send-zip="saveZip($event)"
               @send-prefecture="savePrefecture($event)"
               @send-location="saveLocation($event)"
             ></PostLocationForm>
+
+            <!-- 公開設定フォーム -->
             <PostStatusForm @changeRadio="setStatus($event)"></PostStatusForm>
+
+            <!-- バリデーションメッセージ -->
             <ValidationMessage :messages="messages"></ValidationMessage>
+
+            <!-- 投稿ボタン -->
             <div class="field is-grouped mt-5 mb-2">
               <button
                 :disabled="disabled"
@@ -112,6 +134,7 @@ export default {
       this.disabled = true;
       // メッセージの初期化
       this.messages = [];
+
       // 入力必須項目が空の場合のメッセージ
       if (!this.newPost.picture || !this.newPost.title) {
         if (!this.newPost.picture) {
@@ -124,6 +147,8 @@ export default {
         }
         return;
       }
+
+      // 送信データの作成
       const params = new FormData();
       Object.entries(this.newPost).forEach(([key, value]) => {
         if (key === "picture") {
@@ -134,16 +159,23 @@ export default {
           params.append(key, value);
         }
       });
+
+      // カテゴリの設定
       this.selectedCategory.forEach((value) => {
         // manytomanyfieldなのでひとつずつ加える。
         params.append("category", value);
       });
+
+      // 地名・住所を設定
       params.append("zip_code", this.zipCode);
       params.append("prefecture", this.prefecture);
       params.append("location", this.location);
+
+      // 投稿を作成
       api
         .post("/users_post/", params)
         .then(() => {
+          // ホームページへ遷移
           this.$router.push({ name: "home", params: { before: "create" } });
         })
         .catch(() => {

@@ -1,13 +1,28 @@
 <template>
   <div>
+    <!-- ユーザーをフォローしていない場合 -->
     <a
-      :class="['button', 'is-info', 'is-outlined', 'is-medium', buttonSizeClass]"
+      :class="[
+        'button',
+        'is-info',
+        'is-outlined',
+        'is-medium',
+        buttonSizeClass,
+      ]"
       v-if="!isYourFavoriteUser"
       @click="addToFavoriteUsers"
       >ユーザーをフォロー</a
     >
+
+    <!-- ユーザーをフォローしている場合 -->
     <a
-      :class="['button', 'is-info', 'is-outlined', 'is-medium', buttonSizeClass]"
+      :class="[
+        'button',
+        'is-info',
+        'is-outlined',
+        'is-medium',
+        buttonSizeClass,
+      ]"
       v-else
       @click="removeFromFavoriteUsers"
       >フォロー解除</a
@@ -28,8 +43,8 @@ export default {
     },
     page: {
       type: String,
-      default: '',
-    }
+      default: "",
+    },
   },
   computed: {
     // 表示しているユーザーがログインユーザーのお気に入りかどうか判定
@@ -55,11 +70,11 @@ export default {
     // テンプレートのボタンのサイズのクラスをページによって変更するcomputed
     buttonSizeClass() {
       // ViewPostPageでこのコンポーネントが表示されている場合
-      if (this.page === 'viewPost') {
-        return 'width-80';
+      if (this.page === "viewPost") {
+        return "width-80";
       }
-      return '';
-    }
+      return "";
+    },
   },
   methods: {
     addToFavoriteUsers() {
