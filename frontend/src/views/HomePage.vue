@@ -121,7 +121,7 @@ export default {
   mounted() {
     publicApi.get("/posts/").then((response) => {
       // vuexに投稿の情報を設定
-      this.$store.dispatch("pagination/setPagination", response.data);
+      this.$store.commit("pagination/set", response.data);
       // 投稿が空のとき
       if (!response.data.results.length) {
         this.noPosts = "投稿はありません。";
