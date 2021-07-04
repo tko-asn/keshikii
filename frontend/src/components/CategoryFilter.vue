@@ -254,13 +254,18 @@ export default {
 
       // フィルタリング
       publicApi.get("/posts/" + query).then((response) => {
+        // 絞った投稿を送信
+        this.$emit("filterPosts", response.data.results);
+
         // ページネーションの状態を更新
         this.$store.dispatch("pagination/setPagination", response.data);
+
         // 検索カテゴリーの状態更新
         this.$store.dispatch(
           "pagination/registerSearchCategorys",
           this.selectedCategoryList
         );
+
         // 検索都道府県の状態更新
         this.$store.dispatch(
           "pagination/registerSearchPrefecture",

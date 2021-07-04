@@ -5,11 +5,9 @@ const state = {
 	totalPages: 0,
 	currentPage: 0,
 	pageSize: 0,
-	results: [], // 取得した投稿リスト
 	searchKeyword: '', // 検索キーワード
 	searchCategorys: [], // カテゴリフィルタのリスト
 	searchPrefecture: '', // 都道府県フィルタの値
-	isMounted: false, // mountedで処理がsetが実行されている間はtrue
 };
 
 const getters = {
@@ -21,13 +19,11 @@ const getters = {
 	previousPage: state => state.currentPage - 1,
 	nextPage: state => state.currentPage + 1,
 	pageSize: state => state.pageSize,
-	results: state => state.results, // 投稿リストを参照
 	hasNext: state => !!state.next, // 次のページがあるかどうか
 	hasPrevious: state => !!state.previous, // 前のページがあるかどうか
 	searchKeyword: state => state.searchKeyword,
 	searchCategorys: state => state.searchCategorys,
 	searchPrefecture: state => state.searchPrefecture,
-	isMounted: state => state.isMounted,
 };
 
 const mutations = {
@@ -38,7 +34,6 @@ const mutations = {
 		state.totalPages = payload.total_pages;
 		state.currentPage = payload.current_page;
 		state.pageSize = payload.page_size;
-		state.results = payload.results; // 投稿リストを保存
 	},
 	clear(state) {
 		state.next = '';
@@ -47,11 +42,6 @@ const mutations = {
 		state.totalPages = 0;
 		state.currentPage = 0;
 		state.pageSize = 0;
-		state.results = [];
-	},
-	// isMountedの値を変更
-	changeIsMounted(state, boolean) {
-		state.isMounted = boolean;
 	},
 	setSearchKeyword(state, payload) {
 		state.searchKeyword = payload.searchKeyword;
@@ -98,9 +88,6 @@ const actions = {
 	destroySearchPrefecture({ commit }) {
 		commit('clearSearchPrefecture');
 	},
-	setIsMounted({ commit }, boolean) {
-		commit('changeIsMounted', boolean);
-	}
 };
 
 export default {
