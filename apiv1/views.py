@@ -41,7 +41,6 @@ class PublicPostViewSet(mixins.RetrieveModelMixin,
     ViewUserPage.vue
     CategoryFilter.vue
     Pagination.vue
-
     """
 
     serializer_class = PostSerializer
@@ -50,7 +49,9 @@ class PublicPostViewSet(mixins.RetrieveModelMixin,
     filter_class = PostFilter
 
     def get_queryset(self):
+        # ?retrieve=Trueの場合
         if self.request.query_params.get('retrieve') == 'True':
+            # 非公開の投稿をquerysetに含める
             queryset = Post.objects.all()
         else:
             queryset = Post.objects.filter(status='public')
@@ -81,10 +82,12 @@ class MyPostViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_queryset(self):
+        # ログインユーザーの投稿のみを取得
         return Post.objects.filter(
             author=self.request.user).order_by('-posted_date')
 
     def perform_create(self, serializer):
+        # 投稿作成時にPostモデルのauthorフィールドにはログインユーザーを登録
         serializer.save(author=self.request.user)
 
 
@@ -121,6 +124,7 @@ class FavoritePostsListView(generics.ListAPIView):
 
     def get_queryset(self):
         favorite_posts_list = self.request.user.favorite_posts.all()
+        # ログインユーザーのお気に入りの投稿が空の場合は空のリストを返す
         if not favorite_posts_list:
             return []
         return Post.objects.filter(
@@ -150,30 +154,50 @@ class FollowingViewSet(mixins.CreateModelMixin,
     ]
 
     def get_queryset(self):
-        # ユーザーのフォロワー取得
+        # 以下はユーザーのフォロワー取得のための処理
+
+        # クエリパラメータに?follower=Trueがある場合
         if self.request.query_params.get('followers') == 'True':
             user_id = self.request.query_params.get('user')
+            
+            # クエリパラメータにuserがある場合
+            # 他のユーザーのフォロワーのデータを取得したいときの処理
             if user_id:
+                # user変数にidがuser_idのユーザーオブジェクトを代入
                 user = get_user_model().objects.get(id=user_id)
+
+            # ユーザーがログイン済みの場合
+            # ログインユーザー自身のフォロワーのデータを取得したいときの処理
             elif self.request.user.is_authenticated:
+                # user変数にログインユーザーを代入
                 user = self.request.user
             else:
                 return []
+            
             following_list = Following.objects.filter(followed_user=user.id)
+            # 指定のユーザーのフォロワーがいない場合
             if not following_list:
                 return []
             return following_list
 
-        # ユーザーのフォローユーザー取得
+        # 以下はユーザーのフォローしているユーザー取得のための処理
+
         other_user_id = self.request.query_params.get('other')
-        # 指定のユーザーのフォローユーザー取得
+        # クエリパラメータにotherがある場合
+        # 他のユーザーのフォローしているユーザーのデータを取得する際の処理
         if other_user_id:
+            # otherに指定されているidのユーザーオブジェクトを取得
             user = get_user_model().objects.get(id=other_user_id)
+
+        # ログイン済みの場合
+        # 自分のフォローしているユーザーのデータを取得するための処理
         elif self.request.user.is_authenticated:
             user = self.request.user
         else:
             return []
+        
         following_list = user.followed_by.all()
+        # 指定のユーザーのフォローしているユーザーがいない場合
         if not following_list:
             return []
         return following_list

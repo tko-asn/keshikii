@@ -1,13 +1,13 @@
 const state = {
 	next: '',
 	previous: '',
-	count: 0,
+	count: 0, // 全投稿数
 	totalPages: 0,
 	currentPage: 0,
 	pageSize: 0,
-	searchKeyword: '',
-	searchCategorys: [],
-	searchPrefecture: ''
+	searchKeyword: '', // 検索キーワード
+	searchCategorys: [], // カテゴリフィルタのリスト
+	searchPrefecture: '', // 都道府県フィルタの値
 };
 
 const getters = {
@@ -19,11 +19,11 @@ const getters = {
 	previousPage: state => state.currentPage - 1,
 	nextPage: state => state.currentPage + 1,
 	pageSize: state => state.pageSize,
-	hasNext: state => !!state.next,
-	hasPrevious: state => !!state.previous,
+	hasNext: state => !!state.next, // 次のページがあるかどうか
+	hasPrevious: state => !!state.previous, // 前のページがあるかどうか
 	searchKeyword: state => state.searchKeyword,
 	searchCategorys: state => state.searchCategorys,
-	searchPrefecture: state => state.searchPrefecture
+	searchPrefecture: state => state.searchPrefecture,
 };
 
 const mutations = {
@@ -35,7 +35,15 @@ const mutations = {
 		state.currentPage = payload.current_page;
 		state.pageSize = payload.page_size;
 	},
-	setSearchKeyword(state, payload) { // こっちもクリアしないと値が残るかも
+	clear(state) {
+		state.next = '';
+		state.previous = '';
+		state.count = 0;
+		state.totalPages = 0;
+		state.currentPage = 0;
+		state.pageSize = 0;
+	},
+	setSearchKeyword(state, payload) {
 		state.searchKeyword = payload.searchKeyword;
 	},
 	setSearchCategorys(state, payload) {
@@ -59,6 +67,9 @@ const actions = {
 	setPagination({ commit }, payload) {
 		commit('set', payload);
 	},
+	clearPagination({ commit }) {
+		commit('clear');
+	},
 	registerSearchKeyword({ commit }, payload) {
 		commit('setSearchKeyword', { searchKeyword: payload });
 	},
@@ -76,7 +87,7 @@ const actions = {
 	},
 	destroySearchPrefecture({ commit }) {
 		commit('clearSearchPrefecture');
-	}
+	},
 };
 
 export default {

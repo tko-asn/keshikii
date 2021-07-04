@@ -1,48 +1,62 @@
 <template>
   <div>
+    <!-- モーダルウィンドウ -->
     <ModalWindow
       :showWindow="modalInfo"
       @removeWindow="removeModalWindowInMyPage"
     >
+      <!-- フォローしているユーザーを表示するモーダルの場合 -->
       <template v-slot:favoriteUsers>
         <ViewFavoriteUsers
-          :username="user.username"
+          :username="userProfile.username"
           @removeModalInViewFavoriteUsers="removeModalWindowInMyPage"
         ></ViewFavoriteUsers>
       </template>
+
+      <!-- フォロワーを表示するモーダルの場合 -->
       <template v-slot:followers>
         <ViewFollowers
           :followers="followers"
-          :username="user.username"
+          :username="userProfile.username"
           @removeModalInViewFollowers="removeModalWindowInMyPage"
         ></ViewFollowers>
       </template>
     </ModalWindow>
+
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message :info="messages.informations"></Message>
+
+    <!-- ユーザアイコン, ユーザー名, プロフィール編集ボタンを表示する部分 -->
     <div id="mypage-container" class="container">
-      <UserProfileArea :user="user"></UserProfileArea>
+      <UserProfileArea :user="userProfile"></UserProfileArea>
     </div>
+
+    <!-- タブメニュー -->
     <TabMenu :routesList="routeName" :tabNameList="tabName"></TabMenu>
+
     <div class="container">
+      <!-- プロフィールタブ -->
       <keep-alive>
         <MyProfile
           v-show="isMyPageRoute"
-          :user="user"
+          :user="userProfile"
           @showFollowers="showFollowersInMyPage($event)"
           @showFavoriteUsers="showFavoriteUsersInMyPage"
           @moveTabInMyPage="goToAnotherTab($event)"
         ></MyProfile>
       </keep-alive>
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+
+      <!-- それ以外のタブ -->
+      <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
-import api from "@/api";
+import { mapGetters } from "vuex";
 import GlobalMenu from "@/components/GlobalMenu";
 import MyProfile from "@/components/MyProfile";
 import ModalWindow from "@/components/ModalWindow";
@@ -57,7 +71,6 @@ export default {
     return {
       routeName: ["mypage", "myPosts", "favoritePosts"],
       tabName: ["プロフィール", "自分の投稿", "お気に入りの投稿"],
-      user: {},
       favoriteUsers: [],
       followers: [],
       modalInfo: {
@@ -80,35 +93,47 @@ export default {
     Message,
   },
   methods: {
+    // フォロワーを表示するモーダルを表示
     showFollowersInMyPage(myFollowers) {
+      // myFollowers: MyProfileから送られてきたフォロワーのデータ
       this.followers = myFollowers;
       this.modalInfo.slotName = "followers";
       this.modalInfo.hideWindow = false;
     },
+    // フォローしているユーザーを表示するモーダルを表示
     showFavoriteUsersInMyPage() {
+      // ログインユーザー自身のフォローしているユーザーはvuexから
+      // 参照できるのでViewFavoriteUsersコンポーネントのpropsには
+      // データを送らなくていい
       this.modalInfo.slotName = "favoriteUsers";
       this.modalInfo.hideWindow = false;
     },
+    // モーダルを非表示にするための処理
     removeModalWindowInMyPage() {
       this.modalInfo.slotName = "";
       this.modalInfo.hideWindow = true;
     },
+    // タブ移動の処理
     goToAnotherTab(tabIndex) {
       const nextRoute = this.routeName[tabIndex];
       this.$router.push({ name: nextRoute });
     },
   },
   mounted() {
+    // 現在のURLのrouteNameでのインデックスを取得
     const searchRouteIndex = this.routeName.indexOf(this.$route.name);
+    // URLに応じてisActiveの値を変える
     this.isActive = searchRouteIndex;
-    api.get("/auth/users/me/").then((response) => {
-      this.user = response.data;
-    });
   },
   computed: {
+    // 現在のタブがプロフィールかどうか
+    // URLが/mypageのみのときはプロフィールタブを表示する
+    // これでMyProfileコンポーネントの表示を切り替える
     isMyPageRoute() {
       return this.$route.name === "mypage";
     },
+    // ログインユーザーの情報
+    ...mapGetters("auth", ["userProfile"]),
   },
   // メッセージの表示が必要な場合は
   // dataのmessagesに値を保存して

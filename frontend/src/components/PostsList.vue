@@ -1,5 +1,6 @@
 <template>
   <div class="row columns is-multiline is-marginless">
+    <!-- 投稿カード部分 -->
     <div
       v-for="post in posts"
       :key="post.id"
@@ -7,16 +8,20 @@
       @click="viewPost(post.id)"
     >
       <div class="card">
+        <!-- 投稿写真部分 -->
         <div class="card-image">
           <div class="image-box">
             <img :src="post.picture_url" :alt="post.title" />
           </div>
         </div>
+
         <div class="card-content">
           <div class="post-box">
+            <!-- 投稿者アイコン -->
             <div class="icon-box">
               <img :src="post.author.icon_url" alt="icon" />
             </div>
+            <!-- 投稿タイトル・投稿者名 -->
             <div>
               <p class="title is-4 no-padding">{{ post.title }}</p>
               <p class="subtitle is-6">{{ post.author.username }}の投稿</p>

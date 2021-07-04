@@ -15,12 +15,18 @@ api.interceptors.request.use(
 	config => {
 		// リクエスト時にメッセージを初期化
 		store.dispatch('messages/clear');
-		// apiを叩くときは必ずtokenの検証を行っている
+
+		// apiへアクセスするときは必ずtokenの検証を行っている
 		const token = localStorage.getItem('access');
+
+		// トークンがある場合
 		if (token) {
+			// リクエストヘッダに認証トークンを設定
 			config.headers.Authorization = 'JWT ' + token;
 			return config;
-			// トークンがない場合はそのまま（認証が必要なページはbeforeEnterでアクセス制限）
+
+			// トークンがない場合はそのまま
+			// 認証が必要なページはbeforeEnterでアクセス制限
 		} else {
 			return config;
 		}

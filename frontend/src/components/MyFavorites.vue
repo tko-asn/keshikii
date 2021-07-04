@@ -1,8 +1,13 @@
 <template>
+  <!-- お気に入りの投稿が存在する場合 -->
   <div v-if="favoritePostsList.length">
+    <!-- お気に入りの投稿一覧 -->
     <PostsList :posts="favoritePostsList"></PostsList>
-    <Pagination @paginate="setMyFavorites($event)" class="mt-5"></Pagination>
+    <!-- ページネーション -->
+    <Pagination @paginate="setMyFavorites" class="mt-5"></Pagination>
   </div>
+
+  <!-- お気に入りの投稿がない場合 -->
   <div v-else>
     {{ noFavorites }}
   </div>
@@ -20,10 +25,12 @@ export default {
   },
   created() {
     api.get("/favorite_posts/").then((response) => {
-      if (response.data.results.length) {
-        this.favoritePostsList = response.data.results;
-        this.$store.dispatch("pagination/setPagination", response.data);
-      } else {
+      // ページネーションのvuexの情報を更新
+      this.$store.dispatch("pagination/setPagination", response.data);
+      this.favoritePostsList = response.data.results;
+
+      // お気に入りの投稿がない場合
+      if (!response.data.count) {
         this.noFavorites = "お気に入りの投稿はありません。";
       }
     });
@@ -35,6 +42,7 @@ export default {
     };
   },
   methods: {
+    // ページネーションで実行
     setMyFavorites(posts) {
       this.favoritePostsList = posts;
     },

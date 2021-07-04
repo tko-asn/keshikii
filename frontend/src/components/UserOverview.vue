@@ -1,5 +1,7 @@
 <template>
+  <!-- ユーザーの概要 -->
   <div class="columns mt-6 is-marginless">
+    <!-- 自己紹介 -->
     <div class="column is-8 content">
       <p class="mb-5 title-p">自己紹介</p>
       <div>
@@ -9,6 +11,8 @@
         <p v-else>自己紹介は未記入です。</p>
       </div>
     </div>
+
+    <!-- アカウント作成日時 -->
     <div class="column content">
       <p class="mb-5 title-p">アカウント作成日時</p>
       <div>

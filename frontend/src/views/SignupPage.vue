@@ -1,7 +1,12 @@
 <template>
   <div>
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
+    <!-- サインアップフォーム -->
     <div id="signup-container" class="container mt-6">
       <div class="columns is-centered">
         <form
@@ -10,9 +15,12 @@
           class="box column is-4-desktop is-6-tablet is-8-mobile"
         >
           <div id="form-container">
+            <!-- サインアップラベル -->
             <div class="content mt-6 pb-1">
               <h1 class="has-text-centered">SignUp</h1>
             </div>
+
+            <!-- ユーザー名フォーム -->
             <div class="field pt-4">
               <div class="control">
                 <input
@@ -23,6 +31,8 @@
                 />
               </div>
             </div>
+
+            <!-- パスワードフォーム -->
             <div class="field">
               <div class="control">
                 <input
@@ -33,6 +43,8 @@
                 />
               </div>
             </div>
+
+            <!-- 確認用パスワードフォーム -->
             <div class="field">
               <div class="control">
                 <input
@@ -43,7 +55,11 @@
                 />
               </div>
             </div>
+
+            <!-- バリデーションメッセージ -->
             <ValidationMessage :messages="messages"></ValidationMessage>
+
+            <!-- タブレット用ボタン -->
             <button
               class="button is-primary is-fullwidth"
               id="tablet-button"
@@ -51,6 +67,8 @@
             >
               新規登録
             </button>
+
+            <!-- デスクトップ用ボタン -->
             <button
               class="button is-primary"
               id="pc-button"
@@ -91,11 +109,15 @@ export default {
     registerUser() {
       this.messages = [];
       this.disabled = true;
+
+      // パスワードと確認用パスワードが異なる場合
       if (this.newUser.password !== this.newUser.confirmationPassword) {
         this.disabled = false;
         this.messages.push("確認用パスワードが違います。");
         return;
       }
+
+      // サインアップ
       this.$store
         .dispatch("auth/register", {
           username: this.newUser.username,
@@ -103,12 +125,14 @@ export default {
           re_password: this.newUser.confirmationPassword,
         })
         .then(() => {
+          // サインアップ成功ならログイン
           this.$store
             .dispatch("auth/login", {
               username: this.newUser.username,
               password: this.newUser.password,
             })
             .then(() => {
+              // ホームへ
               this.$router.replace({
                 name: "home",
                 params: { before: "signup" },

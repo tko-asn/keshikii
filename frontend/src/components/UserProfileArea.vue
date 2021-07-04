@@ -1,17 +1,23 @@
 <template>
   <section class="hero welcome is-small">
     <div class="hero-body columns is-vcentered is-marginless">
+      <!-- ユーザーアイコン -->
       <div class="column is-2-desktop is-2-tablet">
         <div class="icon-box">
-          <img :src="user.icon_url" alt="icon">
+          <img :src="user.icon_url" alt="icon" />
         </div>
       </div>
+
+      <!-- ユーザー名 -->
       <div class="column is-6-desktop">
         <h1 class="title username-h1">
           {{ user.username }}
         </h1>
       </div>
+
+      <!-- プロフィール編集・フォローボタン -->
       <div class="column" id="button-container">
+        <!-- 現在のページがマイページの場合 -->
         <button
           class="button is-info is-medium"
           @click="goToEditProfilePage"
@@ -19,19 +25,13 @@
         >
           プロフィールを編集
         </button>
+
+        <!-- 現在のページがログインユーザー以外のページの場合 -->
         <template v-else>
-          <a
-            class="button is-info is-outlined is-medium"
-            v-if="!isYourFavoriteUser"
-            @click="addToFavoriteUsers"
-            >ユーザーをフォロー</a
-          >
-          <a
-            class="button is-info is-outlined is-medium"
-            v-else
-            @click="removeFromFavoriteUsers"
-            >フォロー解除</a
-          >
+          <UserFollowButton
+            :userId="user.id"
+            :username="user.username"
+          ></UserFollowButton>
         </template>
       </div>
     </div>
@@ -39,56 +39,23 @@
 </template>
 
 <script>
-import api from "@/api";
+import UserFollowButton from "@/components/UserFollowButton";
 
 export default {
+  // 本コンポーネントで表示するユーザー
   props: ["user"],
+  components: {
+    UserFollowButton,
+  },
   computed: {
-    isYourFavoriteUser() {
-      const favoriteUsersList = this.$store.getters["auth/favoriteUsersList"];
-      if (favoriteUsersList.length) {
-        let isYourFavoriteUser = false;
-        favoriteUsersList.forEach((userInfo) => {
-          if (userInfo.user_extra_field.username === this.user.username) {
-            isYourFavoriteUser = true;
-          }
-        });
-        return isYourFavoriteUser;
-      } else {
-        return false;
-      }
-    },
+    // 表示中のページがマイページかどうか判定
     isYourPage() {
-      const loginUsername = this.$store.getters["auth/username"];
-      return loginUsername === this.user.username;
+      // 現在のパスにmypageが含まれているかどうか
+      return this.$route.path.match(/mypage/);
     },
   },
   methods: {
-    addToFavoriteUsers() {
-      if (!this.$store.getters["auth/isLoggedIn"]) {
-        this.$router.push({ name: "login", params: { before: "viewPost" } });
-      } else {
-        api
-          .post("/following/", { followed_user: this.user.id })
-          .then((response) => {
-            // response.data = {'user_extra_field': {}, 'followed_by': {}, 'id': ''}
-            // フォローしたユーザーの情報をvuexに格納
-            this.$store.dispatch("auth/setFavoriteUser", response.data); 
-          });
-      }
-    },
-    removeFromFavoriteUsers() {
-      const favoriteUsersList = this.$store.getters["auth/favoriteUsersList"];
-      let deleteUserData = {};
-      favoriteUsersList.forEach((userInfo) => {
-        if (userInfo.user_extra_field.username === this.user.username) {
-          deleteUserData = userInfo;
-        }
-      });
-      api.delete("/following/" + deleteUserData.id + "/").then(() => {
-        this.$store.dispatch("auth/removeFavoriteUser", deleteUserData); // favoriteUsersListから削除
-      });
-    },
+    // プロフィール編集画面へ
     goToEditProfilePage() {
       this.$router.push({ name: "editProfile" });
     },

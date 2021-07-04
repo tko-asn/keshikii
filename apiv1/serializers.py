@@ -84,12 +84,14 @@ class FollowingSerializer(serializers.ModelSerializer):
     )
     user_extra_field = serializers.SerializerMethodField()
 
+    # フォローされているユーザーの情報を返すメソッド
     def get_user_extra_field(self, obj):
         return {
+            # ユーザーの情報：username, icon_url
             'username': obj.followed_user.username, 
             'icon_url': obj.followed_user.icon_url
         }
-
+    
     class Meta:
         model = Following
         fields = [

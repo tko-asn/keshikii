@@ -1,10 +1,13 @@
 <template>
   <aside class="menu panel container" id="filter-container">
     <div class="container">
+      <!-- ラベル -->
       <label id="filter-label" class="label pb-3">
         <fa-icon icon="filter"></fa-icon>
         フィルタ
       </label>
+
+      <!-- デスクトップ用検索ボタン -->
       <div class="columns is-marginless" id="pc-search-button">
         <button
           @click="clickSearchButton"
@@ -13,6 +16,8 @@
           検索
         </button>
       </div>
+
+      <!-- 都道府県フィルタ -->
       <div class="mb-5 mt-4">
         <p class="menu-label">都道府県</p>
         <div class="select">
@@ -68,6 +73,8 @@
           </select>
         </div>
       </div>
+
+      <!-- カテゴリフィルタ -->
       <div>
         <p class="menu-label">カテゴリー</p>
         <div class="select is-info mb-2">
@@ -81,6 +88,8 @@
           <p class="help mb-1" v-show="currentParentCategory">
             以下からカテゴリーを選択してください。
           </p>
+
+          <!-- 親カテゴリ1 建物・人工物 -->
           <div
             class="category-checkbox"
             v-show="currentParentCategory === '建物・人工物'"
@@ -118,6 +127,8 @@
               寺・神社
             </label>
           </div>
+
+          <!-- 親カテゴリ2 自然 -->
           <div
             class="category-checkbox"
             v-show="currentParentCategory === '自然'"
@@ -173,6 +184,8 @@
           </div>
         </div>
       </div>
+
+      <!-- 選択中カテゴリ表示部分 -->
       <div class="mt-3 mb-4">
         <p class="help">選択したカテゴリー</p>
         <span
@@ -183,6 +196,8 @@
           {{ category }}
         </span>
       </div>
+
+      <!-- タブレット用検索ボタン -->
       <div class="columns is-marginless" id="tablet-search-button">
         <button
           @click="clickSearchButton"
@@ -202,50 +217,56 @@ export default {
   data() {
     return {
       currentParentCategory: "",
-      parentCategoryList: ["", "artificial-object", "nature"],
       selectedCategoryList: [],
       selectedPrefecture: "",
     };
   },
   methods: {
-    clickParentCategory(categoryNumber) {
-      const parentCategoryName = this.parentCategoryList[categoryNumber];
-      if (this.currentParentCategory === parentCategoryName) {
-        this.currentParentCategory = "";
-      } else {
-        this.currentParentCategory = parentCategoryName;
-        // カテゴリの検索を人工物と自然両府選択してもokにするならコメントアウト
-        // this.selectedCategoryList = [];
-      }
-    },
     clickSearchButton() {
-      let query = "";
       // djangoのFilterクラスのカテゴリーの指定方法の都合上
-      // カテゴリーのクエリパラメータは文字列で指定する。
-      const firstCategory = this.selectedCategoryList[0];
+      // フィルタのクエリパラメータは文字列で指定する
+      // query: {}の形式では指定しない
+      let query = "";
+
+      // カテゴリが選択されている場合
       if (this.selectedCategoryList.length) {
         for (const category of this.selectedCategoryList) {
-          if (category === firstCategory) {
+          // seletedCategoryListの最初の要素の場合
+          if (category === this.selectedCategoryList[0]) {
+            // ?をつける
             query += "?categorys=" + category;
           } else {
             query += "&categorys=" + category;
           }
         }
       }
+
+      // 都道府県が選択されている場合
       if (this.selectedPrefecture) {
+        // カテゴリが選択済みの場合
         if (query) {
           query += "&prefecture=" + this.selectedPrefecture;
+          // カテゴリが選択されていない場合
         } else {
           query += "?prefecture=" + this.selectedPrefecture;
         }
       }
+
+      // フィルタリング
       publicApi.get("/posts/" + query).then((response) => {
-        this.$emit("searchForCategory", response.data.results);
+        // 絞った投稿を送信
+        this.$emit("filterPosts", response.data.results);
+
+        // ページネーションの状態を更新
         this.$store.dispatch("pagination/setPagination", response.data);
+
+        // 検索カテゴリーの状態更新
         this.$store.dispatch(
           "pagination/registerSearchCategorys",
           this.selectedCategoryList
         );
+
+        // 検索都道府県の状態更新
         this.$store.dispatch(
           "pagination/registerSearchPrefecture",
           this.selectedPrefecture
@@ -254,8 +275,16 @@ export default {
     },
   },
   destroyed() {
+    // vuexの検索カテゴリと検索都道府県の値を初期化
     this.$store.dispatch("pagination/destroySearchCategorys");
     this.$store.dispatch("pagination/destroySearchPrefecture");
+  },
+  watch: {
+    // 親カテゴリの値が変更されたら子カテゴリのリストを初期化
+    // 子カテゴリは親カテゴリのどちらかのものしか選べないという仕様
+    currentParentCategory() {
+      this.selectedCategoryList = [];
+    },
   },
 };
 </script>

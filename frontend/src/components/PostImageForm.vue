@@ -1,9 +1,11 @@
 <template>
   <div>
+    <!-- 画像表示部分 -->
     <div class="img-box">
       <!-- previewSrcはBase64で変換されたもの -->
       <img :src="previewSrc" />
     </div>
+
     <div class="file has-name is-fullwidth pt-3">
       <label class="file-label">
         <input
@@ -12,12 +14,16 @@
           name="resume"
           @change="onImageChange"
         />
+
+        <!-- 画像選択ボタン -->
         <span class="file-cta image-button">
           <span class="file-icon">
             <fa-icon icon="file-upload"></fa-icon>
           </span>
           <span class="file-label select-image"> 画像を選択 </span>
         </span>
+
+        <!-- ファイル名表示部分 -->
         <span class="file-name">{{ this.fileName }}</span>
       </label>
     </div>
@@ -46,6 +52,7 @@ export default {
     };
   },
   methods: {
+    // onImageChangeで使用
     getFileData(file) {
       return new Promise((resolve, reject) => {
         this.picture = file;
@@ -56,6 +63,7 @@ export default {
         fileReader.onerror = (error) => reject(error);
       });
     },
+    // 画像変更時の処理
     onImageChange(event) {
       const images = event.target.files || event.dataTransfer.files;
       const data = images[0];
@@ -84,13 +92,13 @@ export default {
   watch: {
     defaultSrc(val) {
       if (this.defaultSrc) {
-        // 投稿編集画面ではデフォルトで設定されているファイルのsrcをpropsで受け取る。
+        // 投稿編集画面ではデフォルトで設定されているファイルのsrcをpropsで受け取る
         this.previewSrc = val;
       }
     },
     defaultFileName(val) {
       if (this.defaultFileName) {
-        // デフォルトで設定されているファイルのファイル名をpropsで受け取る。
+        // デフォルトで設定されているファイルのファイル名をpropsで受け取る
         this.fileName = val;
       }
     },

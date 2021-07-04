@@ -1,6 +1,9 @@
 <template>
   <div class="panel">
+    <!-- モーダルウィンドウのラベル -->
     <p class="panel-heading">フォロワー</p>
+
+    <!-- フォロワー一覧 -->
     <div class="scroll-block">
       <a
         v-for="follower in followers"
@@ -8,11 +11,14 @@
         class="panel-block columns is-marginless"
         @click="goToUsersPage(follower.username)"
       >
+        <!-- フォロワーのアイコン -->
         <div class="column is-3-desktop is-4-tablet is-5-mobile">
           <div class="icon-box">
             <img :src="follower.icon_url" alt="icon" />
           </div>
         </div>
+
+        <!-- フォロワー名 -->
         <div class="column username hidden">
           <h3>{{ follower.username }}</h3>
         </div>
@@ -23,19 +29,28 @@
 
 <script>
 export default {
+  // propsのusernameは現在ViewUserPageまたはMyPageに表示されている
+  // ユーザーのusername
   props: ["followers", "username"],
   methods: {
     goToUsersPage(username) {
       const loginUsername = this.$store.getters["auth/username"];
+      // クリックされたユーザーがログインユーザー自身の場合
       if (username === loginUsername) {
+        // 現在のページがマイページの場合
         if (this.$route.name === "mypage") {
+          // モーダルを非表示
           this.$emit("removeModalInViewFollowers");
         } else {
+          // マイページへ
           this.$router.push("/mypage");
         }
+        // クリックされたユーザーが現在表示されているユーザーとは別のユーザーの場合
       } else if (this.username !== username) {
         this.$router.push({ name: "viewUser", params: { username: username } });
+        // クリックされたユーザーと現在表示されているユーザーが同じ場合
       } else {
+        // モーダルを非表示
         this.$emit("removeModalInViewFollowers");
       }
     },

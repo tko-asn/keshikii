@@ -1,6 +1,8 @@
 <template>
   <div>
+    <!-- モーダル -->
     <ModalWindow :showWindow="modalInfo" @removeWindow="removeModalWindow">
+      <!-- フォローしているユーザー -->
       <template v-slot:favoriteUsers>
         <ViewFavoriteUsers
           :username="username"
@@ -8,6 +10,8 @@
           @removeModalInViewFavoriteUsers="removeModalWindow"
         ></ViewFavoriteUsers>
       </template>
+
+      <!-- フォロワー -->
       <template v-slot:followers>
         <ViewFollowers
           :followers="followers"
@@ -16,22 +20,32 @@
         ></ViewFollowers>
       </template>
     </ModalWindow>
+
+    <!-- ヘッダー -->
     <GlobalMenu></GlobalMenu>
+
+    <!-- メッセージ -->
     <Message></Message>
+
     <div id="view-user-container">
       <div class="container">
+        <!-- ユーザーアイコン・ユーザー名・フォローボタン -->
         <UserProfileArea :user="user"></UserProfileArea>
+
         <section class="info-tiles mb-5">
           <div class="tile is-ancestor has-text-centered">
+            <!-- 投稿数タイル -->
             <div class="tile is-parent">
               <article
                 class="tile is-child box click-cursor"
                 @click="switchTab(1)"
               >
-                <p class="title">{{ usersPostsCount }}</p>
+                <p class="title">{{ count }}</p>
                 <p class="subtitle">投稿数</p>
               </article>
             </div>
+
+            <!-- フォロワータイル -->
             <div class="tile is-parent">
               <article
                 class="tile is-child box click-cursor"
@@ -41,6 +55,8 @@
                 <p class="subtitle">フォロワ―</p>
               </article>
             </div>
+
+            <!-- フォロータイル -->
             <div class="tile is-parent">
               <article
                 class="tile is-child box click-cursor"
@@ -52,22 +68,31 @@
             </div>
           </div>
         </section>
+
+        <!-- タブメニュー -->
         <TabMenu
           :tabNameList="tabNameInViewUserPage"
           :option="optionNumber"
           @returnTabIndex="switchElement($event)"
           @resetOption="resetOptionNumber"
         ></TabMenu>
+
+        <!-- ユーザー概要 -->
         <UserOverview :user="user" v-show="elementNumber === 0"></UserOverview>
+
+        <!-- 投稿一覧 -->
         <div v-show="elementNumber === 1">
-          <template v-if="usersPosts.length">
-            <PostsList :posts="usersPosts"></PostsList>
+          <!-- 投稿が存在する場合 -->
+          <template v-if="posts.length">
+            <PostsList :posts="posts"></PostsList>
             <Pagination
-              @paginate="setPosts($event)"
               :id="user.id"
               class="mt-5"
+              @paginate="movePage"
             ></Pagination>
           </template>
+
+          <!-- 投稿が存在しない場合 -->
           <template v-else>
             {{ noPosts }}
           </template>
@@ -105,10 +130,13 @@ export default {
     Message,
   },
   mounted() {
+    // ユーザーの情報を取得
     publicApi
       .get("/custom_users/" + this.username + "/")
       .then((userResponse) => {
         this.user = userResponse.data;
+
+        // ユーザーのフォローしているユーザーを取得
         publicApi
           .get("/following/", { params: { other: this.user.id } })
           .then((followingObjects) => {
@@ -118,6 +146,8 @@ export default {
             });
             this.favoriteUsersCount = followingObjects.data.length;
           });
+
+        // ユーザーのフォロワーを取得
         publicApi
           .get("/following/", {
             params: { followers: "True", user: this.user.id },
@@ -130,6 +160,7 @@ export default {
             this.followCount = followingObjects.data.length;
           });
 
+        // ユーザーの投稿を取得
         publicApi
           .get("/posts/", {
             params: {
@@ -137,14 +168,11 @@ export default {
             },
           })
           .then((postResponse) => {
-            if (postResponse.data.results.length) {
-              this.usersPosts = postResponse.data.results;
-              this.usersPostsCount = postResponse.data.count;
-              this.$store.dispatch(
-                "pagination/setPagination",
-                postResponse.data
-              );
-            } else {
+            // ページネーションの状態をセット
+            this.$store.dispatch("pagination/setPagination", postResponse.data);
+            this.posts = postResponse.data.results;
+            this.count = postResponse.data.count;
+            if (!postResponse.data.count) {
               this.noPosts = "投稿はありません。";
             }
           });
@@ -154,8 +182,8 @@ export default {
   data() {
     return {
       user: {},
-      usersPosts: [],
-      usersPostsCount: 0,
+      posts: [],
+      count: 0,
       followers: [],
       followCount: 0,
       favoriteUsers: [],
@@ -186,9 +214,6 @@ export default {
     switchElement(elementIndex) {
       this.elementNumber = elementIndex;
     },
-    setPosts(posts) {
-      this.usersPosts = posts;
-    },
     switchTab(num) {
       if (this.elementNumber !== num) {
         this.optionNumber = num;
@@ -198,10 +223,14 @@ export default {
     resetOptionNumber() {
       this.optionNumber = false;
     },
+    // ページネーション
+    movePage(posts) {
+      this.posts = posts;
+    },
   },
   beforeRouteEnter(to, from, next) {
-    // ViewUserPageの表示内容が自分の場合はmypageへ飛ばす。
     const loginUsername = store.getters["auth/username"];
+    // ViewUserPageの表示内容が自分の場合はmypageへ飛ばす
     if (to.params.username === loginUsername) {
       next("/mypage");
     } else {

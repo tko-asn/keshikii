@@ -1,11 +1,12 @@
 <template>
   <div v-if="myPosts.length">
+    <!-- 投稿一覧 -->
     <PostsList :posts="myPosts"></PostsList>
-    <Pagination @paginate="setMyPosts($event)" class="mt-5"></Pagination>
+
+    <!-- ページネーション -->
+    <Pagination class="mt-5" @paginate="movePage"></Pagination>
   </div>
-  <div v-else>
-    {{ noPosts }}
-  </div>
+  <div v-else>{{ noPosts }}</div>
 </template>
 
 <script>
@@ -14,10 +15,6 @@ import Pagination from "@/components/Pagination";
 import PostsList from "@/components/PostsList";
 
 export default {
-  components: {
-    Pagination,
-    PostsList,
-  },
   data() {
     return {
       myPosts: [],
@@ -25,17 +22,25 @@ export default {
     };
   },
   mounted() {
+    // ログインユーザーの投稿を取得
     api.get("/users_post/").then((response) => {
-      if (response.data.results.length) {
-        this.myPosts = response.data.results;
-        this.$store.dispatch("pagination/setPagination", response.data);
-      } else {
-        this.noPosts = "投稿はありません。";
+      this.myPosts = response.data.results;
+      // ページネーションの情報をvuexに保存
+      this.$store.dispatch("pagination/setPagination", response.data);
+
+      // 投稿がないとき
+      if (!response.data.count) {
+        this.noPosts = "投稿がありません。";
       }
     });
   },
+  components: {
+    Pagination,
+    PostsList,
+  },
   methods: {
-    setMyPosts(posts) {
+    // ページネーション
+    movePage(posts) {
       this.myPosts = posts;
     },
   },
