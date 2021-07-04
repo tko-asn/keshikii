@@ -4,7 +4,7 @@
     <!-- お気に入りの投稿一覧 -->
     <PostsList :posts="favoritePostsList"></PostsList>
     <!-- ページネーション -->
-    <Pagination @paginate="setMyFavorites($event)" class="mt-5"></Pagination>
+    <Pagination @paginate="setMyFavorites" class="mt-5"></Pagination>
   </div>
 
   <!-- お気に入りの投稿がない場合 -->
@@ -25,26 +25,12 @@ export default {
   },
   created() {
     api.get("/favorite_posts/").then((response) => {
-      // お気に入りの投稿が存在する場合
-      if (response.data.results.length) {
-        // isMountedをtrueにする
-        this.$store.commit("pagination/changeIsMounted", true);
+      // ページネーションのvuexの情報を更新
+      this.$store.dispatch("pagination/setPagination", response.data);
+      this.favoritePostsList = response.data.results;
 
-        this.favoritePostsList = response.data.results;
-        this.$store
-          .dispatch("pagination/setPagination", response.data)
-          .then(() => {
-            // stateの変更が完了したらisMountedをfalseにする
-            this.$store.dispatch("pagination/setIsMounted", false);
-          })
-          .catch(() => {
-            // beforeRouteLeaveのwhileの処理が終わらないので
-            // stateの変更に失敗してもisMountedをfalseにする
-            this.$store.dispatch("pagination/setIsMounted", false);
-          });
-
-        // お気に入りの投稿がない場合
-      } else {
+      // お気に入りの投稿がない場合
+      if (!response.data.count) {
         this.noFavorites = "お気に入りの投稿はありません。";
       }
     });

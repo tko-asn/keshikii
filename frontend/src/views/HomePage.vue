@@ -54,15 +54,16 @@
           id="tablet-category-filter"
           class="p-4"
           v-show="filtering"
+          @filterPosts="filter"
         ></CategoryFilter>
       </div>
 
       <div class="columns posts-container is-marginless">
         <!-- 投稿表示部分 -->
         <!-- 投稿が存在する場合 -->
-        <div class="column" v-if="count">
-          <PostsList :posts="results"></PostsList>
-          <Pagination class="mt-6"></Pagination>
+        <div class="column" v-if="posts.length">
+          <PostsList :posts="posts"></PostsList>
+          <Pagination class="mt-6" @paginate="movePage"></Pagination>
         </div>
 
         <!-- 投稿が一件もない場合 -->
@@ -75,6 +76,7 @@
           id="pc-category-filter"
           class="column is-3 ml-5"
           v-show="filtering"
+          @filterPosts="filter"
         ></CategoryFilter>
       </div>
     </div>
@@ -101,6 +103,7 @@ export default {
   props: ["before"],
   data() {
     return {
+      posts: [],
       searchKeyword: "",
       filtering: false,
       noPosts: "",
@@ -120,25 +123,10 @@ export default {
   },
   mounted() {
     publicApi.get("/posts/").then((response) => {
-      if (response.data.results.length) {
-        // isMountedをtrueにする
-        this.$store.commit("pagination/changeIsMounted", true);
-
-        // vuexに投稿の情報を設定
-        this.$store
-          .dispatch("pagination/setPagination", response.data)
-          .then(() => {
-            // stateの変更が完了したらisMountedをfalseにする
-            this.$store.dispatch("pagination/setIsMounted", false);
-          })
-          .catch(() => {
-            // beforeRouteLeaveのwhileの処理が終わらないので
-            // stateの変更に失敗してもisMountedをfalseにする
-            this.$store.dispatch("pagination/setIsMounted", false);
-          });
-
-        // 投稿が空のとき
-      } else {
+      this.posts = response.data.results;
+      this.$store.dispatch("pagination/setPagination", response.data);
+      // 投稿が空のとき
+      if (!response.data.count) {
         this.noPosts = "投稿はありません。";
       }
     });
@@ -159,21 +147,9 @@ export default {
       publicApi
         .get("/posts/", { params: { keyword: this.searchKeyword } })
         .then((response) => {
-          // isMountedをtrueにする
-          this.$store.commit("pagination/changeIsMounted", true);
-
           // レスポンスからvuexのページネーションの情報を更新
-          this.$store
-            .dispatch("pagination/setPagination", response.data)
-            .then(() => {
-              // stateの変更が完了したらisMountedをfalseにする
-              this.$store.dispatch("pagination/setIsMounted", false);
-            })
-            .catch(() => {
-              // beforeRouteLeaveのwhileの処理が終わらないので
-              // stateの変更に失敗してもisMountedをfalseにする
-              this.$store.dispatch("pagination/setIsMounted", false);
-            });
+          this.$store.dispatch("pagination/setPagination", response.data);
+          this.posts = response.data.results;
 
           // 投稿が存在しない場合
           if (!response.data.count) {
@@ -185,6 +161,14 @@ export default {
       // filtering(bool)を切り替え
       // フィルタの表示・非表示を切り替え
       this.filtering = !this.filtering;
+    },
+    // フィルタリング後の投稿
+    filter(filteringPosts) {
+      this.posts = filteringPosts;
+    },
+    //ページネーション
+    movePage(posts) {
+      this.posts = posts;
     },
   },
   // メッセージの表示が必要な場合は
@@ -218,34 +202,20 @@ export default {
   watch: {
     // フィルタから検索して該当する投稿がないとき
     // noPostsにメッセージを設定する
-    count(val) {
+    posts(val) {
       const search =
         this.searchCategorys.length || this.searchPrefecture.length;
-      // countが0かつsearchCategorysかsearchPrefectureのどちらかがtrueの場合
+      // 投稿数が0かつsearchCategorysかsearchPrefectureのどちらかがtrueの場合
       // この条件でページ描画時に投稿が一件もなかったときに
       // noPostsに「投稿が見つかりませんでした。」のメッセージが代入されるのを防ぐ
-      if (val === 0 && search) {
+      if (val.length === 0 && search) {
         this.noPosts = "投稿が見つかりませんでした。";
       }
     },
   },
   beforeRouteLeave(to, from, next) {
     // vuexの検索ワードの値を初期化
-    this.$store.dispatch("pagination/destroySearchKeyword");
-
-    // paginationの情報を初期化
-    // この処理を行わないと別ページで投稿リストを表示するときに
-    // 数秒間古い投稿リストのデータが描画されたり
-    // 新しいデータの代わりに古いデータが表示されたりする
-    while (this.$store.getters["pagination/isMounted"]) {
-      console.log("continue");
-      // paginatino.jsのstateの排他制御のため
-      // isMountedがfalseになるまで待つ
-      continue;
-    }
-    // isMountedがfalseになった時の処理
-    // mountedが完全に実行された後
-    this.$store.commit("pagination/clear");
+    this.$store.commit("pagination/clearSearchKeyword");
     next();
   },
 };

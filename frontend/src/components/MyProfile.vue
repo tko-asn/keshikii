@@ -59,11 +59,18 @@ export default {
   },
   data() {
     return {
+      posts: [],
+      count: 0, // 総投稿数
       numberOfFollowers: 0,
       myFollowers: [],
     };
   },
   mounted() {
+    // 自分の投稿を取得
+    api.get("/users_post/").then((response) => {
+      this.count = response.data.count; // 総投稿数を取得
+    });
+
     // ログインユーザーのフォロワー取得
     api
       .get("/following/", { params: { followers: "True" } })
@@ -79,7 +86,6 @@ export default {
   computed: {
     // フォローしているユーザーのリスト
     ...mapGetters("auth", ["favoriteUsersList", "favoritePostsIdList"]),
-    ...mapGetters("pagination", ["count"]), // 投稿数
   },
   methods: {
     // フォロワーボタンをクリックされたとき

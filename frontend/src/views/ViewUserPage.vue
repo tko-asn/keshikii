@@ -83,9 +83,13 @@
         <!-- 投稿一覧 -->
         <div v-show="elementNumber === 1">
           <!-- 投稿が存在する場合 -->
-          <template v-if="count">
-            <PostsList :posts="results"></PostsList>
-            <Pagination :id="user.id" class="mt-5"></Pagination>
+          <template v-if="posts.length">
+            <PostsList :posts="posts"></PostsList>
+            <Pagination
+              :id="user.id"
+              class="mt-5"
+              @paginate="movePage"
+            ></Pagination>
           </template>
 
           <!-- 投稿が存在しない場合 -->
@@ -100,7 +104,6 @@
 
 <script>
 import { publicApi } from "@/api";
-import { mapGetters } from "vuex";
 import GlobalMenu from "@/components/GlobalMenu";
 import ModalWindow from "@/components/ModalWindow";
 import ViewFavoriteUsers from "@/components/ViewFavoriteUsers";
@@ -157,9 +160,6 @@ export default {
             this.followCount = followingObjects.data.length;
           });
 
-        // isMountedをtrueにする
-        this.$store.commit("pagination/changeIsMounted", true);
-
         // ユーザーの投稿を取得
         publicApi
           .get("/posts/", {
@@ -168,20 +168,11 @@ export default {
             },
           })
           .then((postResponse) => {
-            if (postResponse.data.results.length) {
-              // ページネーションの状態をセット
-              this.$store
-                .dispatch("pagination/setPagination", postResponse.data)
-                .then(() => {
-                  // stateの変更が完了したらisMountedをfalseにする
-                  this.$store.dispatch("pagination/setIsMounted", false);
-                })
-                .catch(() => {
-                  // beforeRouteLeaveのwhileの処理が終わらないので
-                  // stateの変更に失敗してもisMountedをfalseにする
-                  this.$store.dispatch("pagination/setIsMounted", false);
-                });
-            } else {
+            // ページネーションの状態をセット
+            this.$store.dispatch("pagination/setPagination", postResponse.data);
+            this.posts = postResponse.data.results;
+            this.count = postResponse.data.count;
+            if (!postResponse.data.count) {
               this.noPosts = "投稿はありません。";
             }
           });
@@ -191,6 +182,8 @@ export default {
   data() {
     return {
       user: {},
+      posts: [],
+      count: 0,
       followers: [],
       followCount: 0,
       favoriteUsers: [],
@@ -204,10 +197,6 @@ export default {
       optionNumber: false,
       noPosts: "",
     };
-  },
-  computed: {
-    // 投稿のリストと投稿数
-    ...mapGetters("pagination", ["results", "count"]),
   },
   methods: {
     showFollowers() {
@@ -234,6 +223,10 @@ export default {
     resetOptionNumber() {
       this.optionNumber = false;
     },
+    // ページネーション
+    movePage(posts) {
+      this.posts = posts;
+    },
   },
   beforeRouteEnter(to, from, next) {
     const loginUsername = store.getters["auth/username"];
@@ -243,22 +236,6 @@ export default {
     } else {
       next();
     }
-  },
-  beforeRouteLeave(to, from, next) {
-    // paginationの情報を初期化
-    // この処理を行わないと別ページで投稿リストを表示するときに
-    // 数秒間古い投稿リストのデータが描画されたり
-    // 新しいデータの代わりに古いデータが表示されたりする
-    while (this.$store.getters["pagination/isMounted"]) {
-      console.log("continue");
-      // paginatino.jsのstateの排他制御のため
-      // isMountedがfalseになるまで待つ
-      continue;
-    }
-    // isMountedがfalseになった時の処理
-    // mountedが完全に実行された後
-    this.$store.commit("pagination/clear");
-    next();
   },
 };
 </script>
