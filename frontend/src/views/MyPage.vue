@@ -132,8 +132,20 @@ export default {
     // この時点でユーザーの投稿をvuexに保存し
     // 子コンポーネントで投稿を参照するときはvuexから参照させる
     api.get("/users_post/").then((response) => {
+      // isMountedをtrueにする
+      this.$store.commit("pagination/changeIsMounted", true);
       // ページネーションのデータを保存
-      this.$store.commit("pagination/set", response.data);
+      this.$store
+        .dispatch("pagination/setPagination", response.data)
+        .then(() => {
+          // stateの変更が完了したらisMountedをfalseにする
+          this.$store.dispatch("pagination/setIsMounted", false);
+        })
+        .catch(() => {
+          // beforeRouteLeaveのwhileの処理が終わらないので
+          // stateの変更に失敗してもisMountedをfalseにする
+          this.$store.dispatch("pagination/setIsMounted", false);
+        });
     });
   },
   computed: {
@@ -159,21 +171,19 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    // 初期化用データ
-    const clearData = {
-      next: "",
-      previous: "",
-      count: 0,
-      total_pages: 0,
-      current_page: 0,
-      page_size: 0,
-      results: [],
-    };
-
     // paginationの情報を初期化
     // この処理を行わないと別ページで投稿リストを表示するときに
-    // 数秒間古い投稿リストのデータが描画されてしまう
-    this.$store.commit("pagination/set", clearData);
+    // 数秒間古い投稿リストのデータが描画されたり
+    // 新しいデータの代わりに古いデータが表示されたりする
+    while (this.$store.getters["pagination/isMounted"]) {
+      console.log("continue");
+      // paginatino.jsのstateの排他制御のため
+      // isMountedがfalseになるまで待つ
+      continue;
+    }
+    // isMountedがfalseになった時の処理
+    // mountedが完全に実行された後
+    this.$store.commit("pagination/clear");
     next();
   },
 };
