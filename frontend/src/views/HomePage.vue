@@ -120,10 +120,25 @@ export default {
   },
   mounted() {
     publicApi.get("/posts/").then((response) => {
-      // vuexに投稿の情報を設定
-      this.$store.commit("pagination/set", response.data);
-      // 投稿が空のとき
-      if (!response.data.results.length) {
+      if (response.data.results.length) {
+        // isMountedをtrueにする
+        this.$store.commit("pagination/changeIsMounted", true);
+
+        // vuexに投稿の情報を設定
+        this.$store
+          .dispatch("pagination/setPagination", response.data)
+          .then(() => {
+            // stateの変更が完了したらisMountedをfalseにする
+            this.$store.dispatch("pagination/setIsMounted", false);
+          })
+          .catch(() => {
+            // beforeRouteLeaveのwhileの処理が終わらないので
+            // stateの変更に失敗してもisMountedをfalseにする
+            this.$store.dispatch("pagination/setIsMounted", false);
+          });
+
+        // 投稿が空のとき
+      } else {
         this.noPosts = "投稿はありません。";
       }
     });
@@ -144,8 +159,21 @@ export default {
       publicApi
         .get("/posts/", { params: { keyword: this.searchKeyword } })
         .then((response) => {
+          // isMountedをtrueにする
+          this.$store.commit("pagination/changeIsMounted", true);
+
           // レスポンスからvuexのページネーションの情報を更新
-          this.$store.dispatch("pagination/setPagination", response.data);
+          this.$store
+            .dispatch("pagination/setPagination", response.data)
+            .then(() => {
+              // stateの変更が完了したらisMountedをfalseにする
+              this.$store.dispatch("pagination/setIsMounted", false);
+            })
+            .catch(() => {
+              // beforeRouteLeaveのwhileの処理が終わらないので
+              // stateの変更に失敗してもisMountedをfalseにする
+              this.$store.dispatch("pagination/setIsMounted", false);
+            });
 
           // 投稿が存在しない場合
           if (!response.data.count) {
@@ -205,21 +233,19 @@ export default {
     // vuexの検索ワードの値を初期化
     this.$store.dispatch("pagination/destroySearchKeyword");
 
-    // 初期化用データ
-    const clearData = {
-      next: "",
-      previous: "",
-      count: 0,
-      total_pages: 0,
-      current_page: 0,
-      page_size: 0,
-      results: [],
-    };
-
     // paginationの情報を初期化
     // この処理を行わないと別ページで投稿リストを表示するときに
-    // 数秒間古い投稿リストのデータが描画されてしまう
-    this.$store.commit("pagination/set", clearData);
+    // 数秒間古い投稿リストのデータが描画されたり
+    // 新しいデータの代わりに古いデータが表示されたりする
+    while (this.$store.getters["pagination/isMounted"]) {
+      console.log("continue");
+      // paginatino.jsのstateの排他制御のため
+      // isMountedがfalseになるまで待つ
+      continue;
+    }
+    // isMountedがfalseになった時の処理
+    // mountedが完全に実行された後
+    this.$store.commit("pagination/clear");
     next();
   },
 };
