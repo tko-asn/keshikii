@@ -50,15 +50,12 @@
       </keep-alive>
 
       <!-- それ以外のタブ -->
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+      <router-view></router-view>
     </div>
   </div>
 </template>
 
 <script>
-import api from "@/api";
 import { mapGetters } from "vuex";
 import GlobalMenu from "@/components/GlobalMenu";
 import MyProfile from "@/components/MyProfile";
@@ -127,14 +124,6 @@ export default {
     const searchRouteIndex = this.routeName.indexOf(this.$route.name);
     // URLに応じてisActiveの値を変える
     this.isActive = searchRouteIndex;
-
-    // ログインユーザーの投稿を取得
-    // この時点でユーザーの投稿をvuexに保存し
-    // 子コンポーネントで投稿を参照するときはvuexから参照させる
-    api.get("/users_post/").then((response) => {
-      // ページネーションのデータを保存
-      this.$store.dispatch("pagination/setPagination", response.data);
-    });
   },
   computed: {
     // 現在のタブがプロフィールかどうか
@@ -157,12 +146,6 @@ export default {
     } else {
       next();
     }
-  },
-  destroyed() {
-    // paginationの情報を初期化
-    // この処理を行わないと別ページで投稿リストを表示するときに
-    // 数秒間古い投稿リストのデータが描画されてしまう
-    this.$store.dispatch("pagination/clearPagination");
   },
 };
 </script>

@@ -24,7 +24,7 @@
         <!-- お気に入りの投稿 -->
         <div class="tile is-parent">
           <article class="tile is-child box click-cursor" @click="moveTab(2)">
-            <p class="title">{{ numberOfFavoritePosts }}</p>
+            <p class="title">{{ favoritePostsIdList.length }}</p>
             <p class="subtitle">お気に入り</p>
           </article>
         </div>
@@ -59,11 +59,18 @@ export default {
   },
   data() {
     return {
+      posts: [],
+      count: 0, // 総投稿数
       numberOfFollowers: 0,
       myFollowers: [],
     };
   },
   mounted() {
+    // 自分の投稿を取得
+    api.get("/users_post/").then((response) => {
+      this.count = response.data.count; // 総投稿数を取得
+    });
+
     // ログインユーザーのフォロワー取得
     api
       .get("/following/", { params: { followers: "True" } })
@@ -78,15 +85,7 @@ export default {
   },
   computed: {
     // フォローしているユーザーのリスト
-    ...mapGetters("auth", ["favoriteUsersList"]),
-    ...mapGetters("pagination", ["count"]), // 投稿数
-    numberOfFavoritePosts() {
-      // お気に入りの投稿数
-      if (this.user.favorite_posts) {
-        return this.user.favorite_posts.length;
-      }
-      return 0;
-    },
+    ...mapGetters("auth", ["favoriteUsersList", "favoritePostsIdList"]),
   },
   methods: {
     // フォロワーボタンをクリックされたとき
