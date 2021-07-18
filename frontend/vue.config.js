@@ -1,4 +1,9 @@
 module.exports = {
+  devServer: {
+    watchOptions: {
+      poll: true
+    },
+  },
   pages: {
     index: {
       entry: 'src/main.js',
