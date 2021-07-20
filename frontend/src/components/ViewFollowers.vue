@@ -47,6 +47,10 @@ export default {
         }
         // クリックされたユーザーが現在表示されているユーザーとは別のユーザーの場合
       } else if (this.username !== username) {
+        // モーダルを非表示
+        this.$emit("removeModalInViewFollowers");
+        // 同一ルート上でのparams変更
+        // 厳密には親コンポーネントのbeforeRouteUpdateで表示ユーザーを変更
         this.$router.push({ name: "viewUser", params: { username: username } });
         // クリックされたユーザーと現在表示されているユーザーが同じ場合
       } else {
