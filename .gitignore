@@ -5,6 +5,12 @@ db.sqlite3
 media/
 *.py[co]
 
+# Docker
+db/
+docker-compose.yml
+*~
+.dockerignore
+Dockerfile
 
 .DS_Store
 node_modules

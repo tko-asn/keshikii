@@ -69,7 +69,7 @@ export default {
     option() {
       // ページ遷移しないタブ移動で親からもタブを移動させたいとき
       // propsのoptionからactiveの値を変換
-      if (this.option) {
+      if (this.option || this.option === 0) {
         this.active = this.option;
         this.$emit("resetOption");
       }

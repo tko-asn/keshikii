@@ -237,6 +237,67 @@ export default {
       next();
     }
   },
+  // フォロワー・フォローのモーダルから
+  // ログインユーザー以外のユーザーが選択されたとき
+  // URLのparamsの変更を検知
+  beforeRouteUpdate(to, from, next) {
+    // タブメニューを初期化
+    this.elementNumber = 0;
+    this.optionNumber = 0;
+
+    // ユーザーの情報を取得
+    publicApi
+      .get("/custom_users/" + to.params.username + "/")
+      .then((userResponse) => {
+        this.user = userResponse.data;
+
+        // ユーザーのフォローしているユーザーを取得
+        publicApi
+          .get("/following/", { params: { other: this.user.id } })
+          .then((followingObjects) => {
+            // フォローユーザーのリストを初期化
+            this.favoriteUsers = [];
+            // userのフォローユーザーを取得
+            followingObjects.data.forEach((followerInfo) => {
+              this.favoriteUsers.push(followerInfo);
+            });
+            this.favoriteUsersCount = followingObjects.data.length;
+          });
+
+        // ユーザーのフォロワーを取得
+        publicApi
+          .get("/following/", {
+            params: { followers: "True", user: this.user.id },
+          })
+          .then((followingObjects) => {
+            // フォロワーのリストを初期化
+            this.followers = [];
+            // userのフォロワーを取得
+            followingObjects.data.forEach((following) => {
+              this.followers.push(following.followed_by);
+            });
+            this.followCount = followingObjects.data.length;
+          });
+
+        // ユーザーの投稿を取得
+        publicApi
+          .get("/posts/", {
+            params: {
+              user_id: this.user.id,
+            },
+          })
+          .then((postResponse) => {
+            // ページネーションの状態をセット
+            this.$store.dispatch("pagination/setPagination", postResponse.data);
+            this.posts = postResponse.data.results;
+            this.count = postResponse.data.count;
+            if (!postResponse.data.count) {
+              this.noPosts = "投稿はありません。";
+            }
+          });
+      });
+    next();
+  },
 };
 </script>
 
