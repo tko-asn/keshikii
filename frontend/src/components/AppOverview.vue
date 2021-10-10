@@ -1,47 +1,47 @@
 <template>
-  <div id="app-overview">
-    <div class="scroll-block">
-      <div class="overview-container">
+  <div class="app-overview">
+    <div class="app-overview__scroll">
+      <div class="container-overview">
         <!-- アプリ名 -->
-        <h1 class="app-title pt-5 pb-3">KESHKIIとは</h1>
+        <h1 class="container-overview__title pt-5 pb-3">KESHKIIとは</h1>
 
         <!-- アプリ概要 -->
-        <span>
-          <span>誰でも気軽に</span>
-          <span>写真を投稿できる</span>
-          <span>景色共有アプリです。</span>
+        <span class="container-overview__span">
+          <span class="container-overview__span">誰でも気軽に</span>
+          <span class="container-overview__span">写真を投稿できる</span>
+          <span class="container-overview__span">景色共有アプリです。</span>
         </span>
-        <span>
-          <span>あなたが</span>
-          <span>日常で見つけた</span>
-          <span>小さな発見を</span>
-          <span>写真に収めて</span>
-          <span>他の人に</span>
-          <span>紹介しましょう。</span>
+        <span class="container-overview__span">
+          <span class="container-overview__span">あなたが</span>
+          <span class="container-overview__span">日常で見つけた</span>
+          <span class="container-overview__span">小さな発見を</span>
+          <span class="container-overview__span">写真に収めて</span>
+          <span class="container-overview__span">他の人に</span>
+          <span class="container-overview__span">紹介しましょう。</span>
         </span>
-        <span>
-          <span>このアプリでは</span>
-          <span>地名や住所を</span>
-          <span>表記できるため</span>
-          <span>写真の撮影場所を</span>
-          <span>サイト閲覧者に</span>
-          <span>教えることが</span>
-          <span>できます。</span>
+        <span class="container-overview__span">
+          <span class="container-overview__span">このアプリでは</span>
+          <span class="container-overview__span">地名や住所を</span>
+          <span class="container-overview__span">表記できるため</span>
+          <span class="container-overview__span">写真の撮影場所を</span>
+          <span class="container-overview__span">サイト閲覧者に</span>
+          <span class="container-overview__span">教えることが</span>
+          <span class="container-overview__span">できます。</span>
         </span>
-        <span>
-          <span>あなたの見つけた</span>
-          <span>観光地を他の人に</span>
-          <span>紹介してみませんか？</span>
+        <span class="container-overview__span">
+          <span class="container-overview__span">あなたの見つけた</span>
+          <span class="container-overview__span">観光地を他の人に</span>
+          <span class="container-overview__span">紹介してみませんか？</span>
         </span>
 
         <!-- モーダル非表示ボタン -->
         <a
           class="
+            container-overview__btn
             button
             is-primary is-medium is-outlined
             mt-5
             mb-5
-            border-radius
           "
           @click="remove"
           >閉じる</a
@@ -63,35 +63,41 @@ export default {
 </script>
 
 <style scoped>
-.scroll-block {
+.app-overview__scroll {
   height: 100%;
   overflow-y: scroll;
 }
-#app-overview {
+
+.app-overview {
   width: 100%;
   height: 100%;
 }
-.overview-container {
+
+.container-overview {
   height: 100%;
   width: 80%;
   margin: 0 auto;
   text-align: center;
 }
-.app-title {
+
+.container-overview__title {
   color: #aaaaaa;
   margin: 0;
   font-size: 3vw;
 }
-span {
+
+.container-overview__span {
   color: gray;
   line-height: 3;
   display: inline-block;
 }
-.border-radius {
+
+.container-overview__btn {
   border-radius: 20px;
 }
+
 @media screen and (max-width: 768px) {
-  .app-title {
+  .container-overview__title {
     font-size: 7vw;
   }
 }

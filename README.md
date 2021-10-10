@@ -37,6 +37,7 @@
 
 ### インフラ
 
+- Docker（開発環境）
 - Heroku
 - AWS
   - CloudFront
