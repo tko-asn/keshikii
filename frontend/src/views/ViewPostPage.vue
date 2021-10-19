@@ -124,7 +124,11 @@
           <h6 class="mb-2 title-h6">写真撮影場所</h6>
           <p>{{ post.zip_code }}</p>
           <p>{{ post.prefecture }}{{ post.location }}</p>
-          <div ref="map" class="map"></div>
+          <div
+            ref="map"
+            class="map"
+            v-if="post.prefecture && post.location"
+          ></div>
         </div>
       </div>
     </div>
