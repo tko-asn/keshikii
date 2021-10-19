@@ -124,6 +124,11 @@
           <h6 class="mb-2 title-h6">写真撮影場所</h6>
           <p>{{ post.zip_code }}</p>
           <p>{{ post.prefecture }}{{ post.location }}</p>
+          <div
+            ref="map"
+            class="map"
+            v-if="post.prefecture && post.location"
+          ></div>
         </div>
       </div>
     </div>
@@ -182,18 +187,33 @@ export default {
       },
     };
   },
-  mounted() {
+  async mounted() {
     // propsのIDから投稿の詳細なデータを取得
-    publicApi
-      .get("/posts/" + this.id + "/", {
-        params: {
-          retrieve: "True",
-        },
-      })
-      .then((response) => {
-        // dataに保存
-        this.post = response.data;
-      });
+    const { data } = await publicApi.get("/posts/" + this.id + "/", {
+      params: {
+        retrieve: "True",
+      },
+    });
+    this.post = data;
+    const address = this.post.prefecture + this.post.location;
+    let timer = setInterval(() => {
+      if (window.google) {
+        clearInterval(timer);
+        const geocoder = new window.google.maps.Geocoder();
+        geocoder.geocode({ address }, (results, status) => {
+          if (status === window.google.maps.GeocoderStatus.OK) {
+            const map = new window.google.maps.Map(this.$refs.map, {
+              center: results[0].geometry.location,
+              zoom: 17,
+            });
+            new window.google.maps.Marker({
+              position: results[0].geometry.location,
+              map,
+            });
+          }
+        });
+      }
+    }, 500);
   },
   methods: {
     // 投稿者のページへ移動
@@ -313,5 +333,18 @@ export default {
 }
 .border-bottom {
   border-bottom: 2px solid #eeeeee;
+}
+.map {
+  width: 400px;
+  height: 300px;
+  margin-top: 30px;
+  border: 2px solid gray;
+}
+
+@media screen and (max-width: 599px) {
+  .map {
+    width: 100%;
+    height: 250px;
+  }
 }
 </style>

@@ -1,195 +1,104 @@
 <template>
-  <aside class="menu panel container" id="filter-container">
-    <div class="container">
+  <aside class="container-filter menu panel container">
+    <div class="container-filter__container container">
       <!-- ラベル -->
-      <label id="filter-label" class="label pb-3">
-        <fa-icon icon="filter"></fa-icon>
+      <label class="label-filter label pb-3">
+        <fa-icon class="labal-filter__icon" icon="filter"></fa-icon>
         フィルタ
       </label>
 
       <!-- デスクトップ用検索ボタン -->
-      <div class="columns is-marginless" id="pc-search-button">
+      <div class="search-button--pc columns is-marginless">
         <button
           @click="clickSearchButton"
-          class="button is-primary column is-fullwidth"
+          class="search-button__btn button is-primary column is-fullwidth"
         >
           検索
         </button>
       </div>
 
       <!-- 都道府県フィルタ -->
-      <div class="mb-5 mt-4">
-        <p class="menu-label">都道府県</p>
-        <div class="select">
-          <select v-model="selectedPrefecture">
-            <option value="">指定なし</option>
-            <option>北海道</option>
-            <option>青森県</option>
-            <option>岩手県</option>
-            <option>宮城県</option>
-            <option>秋田県</option>
-            <option>山形県</option>
-            <option>福島県</option>
-            <option>茨城県</option>
-            <option>栃木県</option>
-            <option>群馬県</option>
-            <option>埼玉県</option>
-            <option>千葉県</option>
-            <option>東京都</option>
-            <option>神奈川県</option>
-            <option>新潟県</option>
-            <option>富山県</option>
-            <option>石川県</option>
-            <option>福井県</option>
-            <option>山梨県</option>
-            <option>長野県</option>
-            <option>岐阜県</option>
-            <option>静岡県</option>
-            <option>愛知県</option>
-            <option>三重県</option>
-            <option>滋賀県</option>
-            <option>京都府</option>
-            <option>大阪府</option>
-            <option>兵庫県</option>
-            <option>奈良県</option>
-            <option>和歌山県</option>
-            <option>鳥取県</option>
-            <option>島根県</option>
-            <option>岡山県</option>
-            <option>広島県</option>
-            <option>山口県</option>
-            <option>徳島県</option>
-            <option>香川県</option>
-            <option>愛媛県</option>
-            <option>高知県</option>
-            <option>福岡県</option>
-            <option>佐賀県</option>
-            <option>長崎県</option>
-            <option>熊本県</option>
-            <option>大分県</option>
-            <option>宮崎県</option>
-            <option>鹿児島県</option>
-            <option>沖縄県</option>
+      <div class="filter-prefecture mb-5 mt-4">
+        <p class="filter-prefecture__title menu-label">都道府県</p>
+        <div class="filter-prefecture__select select">
+          <select class="block-select" v-model="selectedPrefecture">
+            <option class="block-select__item" value="">指定なし</option>
+            <option
+              class="block-select__item"
+              v-for="prefecture in prefectureList"
+              :key="prefecture"
+            >
+              {{ prefecture }}
+            </option>
           </select>
         </div>
       </div>
 
       <!-- カテゴリフィルタ -->
-      <div>
-        <p class="menu-label">カテゴリー</p>
-        <div class="select is-info mb-2">
-          <select v-model="currentParentCategory">
-            <option value="">カテゴリを選択</option>
-            <option>建物・人工物</option>
-            <option>自然</option>
+      <div class="filter-category">
+        <p class="filter-category__title menu-label">カテゴリー</p>
+        <div class="filter-category__select select is-info mb-2">
+          <select class="block-select" v-model="currentParentCategory">
+            <option class="block-select__item" value="">カテゴリを選択</option>
+            <option class="block-select__item">建物・人工物</option>
+            <option class="block-select__item">自然</option>
           </select>
         </div>
-        <div>
-          <p class="help mb-1" v-show="currentParentCategory">
+        <div class="filter-category__block-child">
+          <p
+            class="filter-category__text-help help mb-1"
+            v-show="currentParentCategory"
+          >
             以下からカテゴリーを選択してください。
           </p>
 
           <!-- 親カテゴリ1 建物・人工物 -->
           <div
-            class="category-checkbox"
+            class="checkbox-category"
             v-show="currentParentCategory === '建物・人工物'"
           >
-            <label class="checkbox mr-2">
+            <label
+              class="checkbox-category__label checkbox mr-2"
+              v-for="category in artificial"
+              :key="category"
+            >
               <input
+                class="checkbox-category__input"
                 v-model="selectedCategoryList"
-                value="道路"
+                :value="category"
                 type="checkbox"
               />
-              道路
-            </label>
-            <label class="checkbox mr-2">
-              <input
-                v-model="selectedCategoryList"
-                value="商業施設"
-                type="checkbox"
-              />
-              商業施設
-            </label>
-            <label class="checkbox mr-2">
-              <input
-                v-model="selectedCategoryList"
-                value="ビル"
-                type="checkbox"
-              />
-              ビル
-            </label>
-            <label class="checkbox">
-              <input
-                v-model="selectedCategoryList"
-                value="寺・神社"
-                type="checkbox"
-              />
-              寺・神社
+              {{ category }}
             </label>
           </div>
 
           <!-- 親カテゴリ2 自然 -->
           <div
-            class="category-checkbox"
+            class="checkbox-category"
             v-show="currentParentCategory === '自然'"
           >
-            <label class="checkbox mr-5">
+            <label
+              v-for="category in natural"
+              :key="category"
+              class="checkbox-category__label checkbox mr-5"
+            >
               <input
+                class="checkbox-category__input"
                 v-model="selectedCategoryList"
-                value="山"
+                :value="category"
                 type="checkbox"
               />
-              山
-            </label>
-            <label class="checkbox mr-5">
-              <input
-                v-model="selectedCategoryList"
-                value="海"
-                type="checkbox"
-              />
-              海
-            </label>
-            <label class="checkbox mr-5">
-              <input
-                v-model="selectedCategoryList"
-                value="空"
-                type="checkbox"
-              />
-              空
-            </label>
-            <label class="checkbox mr-5">
-              <input
-                v-model="selectedCategoryList"
-                value="湖"
-                type="checkbox"
-              />
-              湖
-            </label>
-            <label class="checkbox mr-5">
-              <input
-                v-model="selectedCategoryList"
-                value="星"
-                type="checkbox"
-              />
-              星
-            </label>
-            <label class="checkbox">
-              <input
-                v-model="selectedCategoryList"
-                value="森林"
-                type="checkbox"
-              />
-              森林
+              {{ category }}
             </label>
           </div>
         </div>
       </div>
 
       <!-- 選択中カテゴリ表示部分 -->
-      <div class="mt-3 mb-4">
-        <p class="help">選択したカテゴリー</p>
+      <div class="block-selected-category mt-3 mb-4">
+        <p class="block-selected-category__title help">選択したカテゴリー</p>
         <span
-          class="tag is-primary mt-1 mx-1"
+          class="block-selected-category__tag tag is-primary mt-1 mx-1"
           v-for="category in selectedCategoryList"
           :key="category"
         >
@@ -198,10 +107,10 @@
       </div>
 
       <!-- タブレット用検索ボタン -->
-      <div class="columns is-marginless" id="tablet-search-button">
+      <div class="search-button--tablet columns is-marginless">
         <button
           @click="clickSearchButton"
-          class="button is-primary column is-fullwidth"
+          class="search-button__btn button is-primary column is-fullwidth"
         >
           検索
         </button>
@@ -219,6 +128,57 @@ export default {
       currentParentCategory: "",
       selectedCategoryList: [],
       selectedPrefecture: "",
+      prefectureList: [
+        "北海道",
+        "青森県",
+        "岩手県",
+        "宮城県",
+        "秋田県",
+        "山形県",
+        "福島県",
+        "茨城県",
+        "栃木県",
+        "群馬県",
+        "埼玉県",
+        "千葉県",
+        "東京都",
+        "神奈川県",
+        "新潟県",
+        "富山県",
+        "石川県",
+        "福井県",
+        "山梨県",
+        "長野県",
+        "岐阜県",
+        "静岡県",
+        "愛知県",
+        "三重県",
+        "滋賀県",
+        "京都府",
+        "大阪府",
+        "兵庫県",
+        "奈良県",
+        "和歌山県",
+        "鳥取県",
+        "島根県",
+        "岡山県",
+        "広島県",
+        "山口県",
+        "徳島県",
+        "香川県",
+        "愛媛県",
+        "高知県",
+        "福岡県",
+        "佐賀県",
+        "長崎県",
+        "熊本県",
+        "大分県",
+        "宮崎県",
+        "鹿児島県",
+        "沖縄県",
+      ],
+      artificial: ["道路", "商業施設", "ビル", "寺・神社"],
+      natural: ["山", "海", "空", "湖", "星", "森林"],
     };
   },
   methods: {
@@ -290,35 +250,28 @@ export default {
 </script>
 
 <style scoped>
-#filter-container {
+.container-filter {
   position: relative;
 }
-#filter-label {
+
+.label-filter {
   color: gray;
 }
-.category-checkbox {
+
+.checkbox-category {
   margin: 0 auto;
   vertical-align: middle;
 }
-#category-list {
-  height: 100px;
-}
-#category-list p {
-  margin: 0 auto;
-  width: 90%;
-}
-#category-list div {
-  width: 90%;
-  margin: 10px auto;
-}
-#tablet-search-button {
+
+.search-button--tablet {
   display: none;
 }
+
 @media screen and (max-width: 768px) {
-  #pc-search-button {
+  .search-button--pc {
     display: none;
   }
-  #tablet-search-button {
+  .search-button--tablet {
     display: block;
   }
 }
